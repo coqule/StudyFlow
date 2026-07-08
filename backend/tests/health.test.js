@@ -2,9 +2,10 @@ const request = require("supertest");
 const app = require("../src/app");
 
 describe("GET /health", () => {
-  it("responde 200 con { status: 'ok' }", async () => {
+  it("responde 200 con status 'ok' y un campo db ('ok' o 'error')", async () => {
     const res = await request(app).get("/health");
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ status: "ok" });
+    expect(res.body.status).toBe("ok");
+    expect(["ok", "error"]).toContain(res.body.db);
   });
 });
