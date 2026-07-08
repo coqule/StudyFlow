@@ -1,0 +1,11 @@
+{
+  "name": "studyflow-workspace",
+  "private": true,
+  "description": "Root workspace de StudyFlow. Solo contiene scripts de harness SDD.",
+  "scripts": {
+    "verify": "node scripts/verify.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
