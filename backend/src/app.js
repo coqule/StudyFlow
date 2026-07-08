@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 
 const supabase = require("./services/supabase");
+const authRouter = require("./routes/auth");
+const requireAuth = require("./middleware/auth");
 
 const app = express();
 
@@ -35,6 +37,28 @@ app.get("/health", async (req, res) => {
   }
 
   res.status(200).json({ status: "ok", db });
+});
+
+// /api/auth/register y /api/auth/login son las dos únicas rutas públicas de
+// la API (docs/api-contratos.md) — se montan ANTES del middleware de
+// autenticación global para no exigir JWT en ellas (R1, R4).
+app.use("/api/auth", authRouter);
+
+// Todo lo demás bajo /api requiere JWT válido (R6, R7). Ninguna otra
+// feature monta routers protegidos todavía — el middleware queda listo
+// para que `cursos_crud` (feature 4) lo reutilice sin cambios
+// (specs/auth/design.md §2).
+app.use("/api", requireAuth);
+
+// Middleware de errores centralizado (docs/conventions.md §6): responde con
+// el status/code que llevan los errores lanzados en controllers/services,
+// nunca expone stack traces.
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({
+    error: err.message || "Error interno del servidor",
+    ...(err.code ? { code: err.code } : {}),
+  });
 });
 
 module.exports = app;
