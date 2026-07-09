@@ -4,6 +4,7 @@ const cors = require("cors");
 const supabase = require("./services/supabase");
 const authRouter = require("./routes/auth");
 const cursosRouter = require("./routes/cursos");
+const tareasRouter = require("./routes/tareas");
 const requireAuth = require("./middleware/auth");
 
 const app = express();
@@ -55,6 +56,11 @@ app.use("/api", requireAuth);
 // DESPUÉS de requireAuth — todas sus rutas exigen JWT válido, y
 // `req.usuario_id` ya está disponible para el controller/service (R1–R11).
 app.use("/api/cursos", cursosRouter);
+
+// /api/tareas: CRUD de tareas (specs/tareas_crud/design.md §4). Montado
+// DESPUÉS de requireAuth — todas sus rutas exigen JWT válido, y
+// `req.usuario_id` ya está disponible para el controller/service (R1–R12).
+app.use("/api/tareas", tareasRouter);
 
 // Middleware de errores centralizado (docs/conventions.md §6): responde con
 // el status/code que llevan los errores lanzados en controllers/services,

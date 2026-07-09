@@ -47,6 +47,17 @@ jest.mock("./services/cursosApi", () => ({
   eliminarCurso: jest.fn(),
 }));
 
+// MOCK: backend desactivado en este test (docs/conventions.md §8) —
+// `tareasApi.ts` usa `import.meta.env` (ESM), mismo motivo que el mock de
+// `cursosApi` de arriba (specs/tareas_crud/design.md §5). `App` ahora monta
+// también `TareaForm`/`TareaList` vía `useTareas()`.
+jest.mock("./services/tareasApi", () => ({
+  listarTareas: jest.fn().mockResolvedValue([]),
+  crearTarea: jest.fn(),
+  actualizarTarea: jest.fn(),
+  eliminarTarea: jest.fn(),
+}));
+
 // Regresión de R30 (bug real de R13 encontrado en pruebas manuales
 // post-review, specs/cursos_crud/design.md §7.7): antes de este fix
 // `CursoForm` llamaba su propia instancia de `useCursos()`, desconectada de
@@ -66,9 +77,15 @@ describe("Integración CursoForm -> CursoList (R30)", () => {
 
     await user.type(screen.getByLabelText("Nombre"), "Cálculo II");
     await user.selectOptions(screen.getByLabelText("Dificultad"), "5");
-    await user.click(screen.getByText("Guardar"));
+    // `App` ahora también monta `TareaForm` (tareas_crud), que tiene su
+    // propio botón "Guardar" — se toma el primero (el de `CursoForm`,
+    // montado antes en el árbol) para no ambigüar la consulta.
+    await user.click(screen.getAllByText("Guardar")[0]);
 
-    expect(await screen.findByText("Cálculo II")).toBeInTheDocument();
+    // `TareaForm` (tareas_crud) también muestra "Cálculo II" como opción de
+    // su selector de curso una vez creado — se busca específicamente la
+    // fila de `CursoList` (un <li>) para no ambigüar la consulta.
+    expect(await screen.findByText("Cálculo II", { selector: "li *" })).toBeInTheDocument();
     expect(screen.queryByText("Aún no tienes cursos.")).not.toBeInTheDocument();
   });
 });
