@@ -58,6 +58,16 @@ jest.mock("./services/tareasApi", () => ({
   eliminarTarea: jest.fn(),
 }));
 
+// MOCK: backend desactivado — `disponibilidadApi.ts` también usa
+// `import.meta.env` (ESM que `tsconfig.jest.json` no transforma). App.tsx lo
+// monta vía `useDisponibilidad`; se mockea por el mismo motivo que `cursosApi`.
+jest.mock("./services/disponibilidadApi", () => ({
+  listarDisponibilidad: jest.fn().mockResolvedValue([]),
+  crearBloque: jest.fn(),
+  actualizarBloque: jest.fn(),
+  eliminarBloque: jest.fn(),
+}));
+
 // Regresión de R30 (bug real de R13 encontrado en pruebas manuales
 // post-review, specs/cursos_crud/design.md §7.7): antes de este fix
 // `CursoForm` llamaba su propia instancia de `useCursos()`, desconectada de

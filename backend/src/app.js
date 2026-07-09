@@ -5,6 +5,7 @@ const supabase = require("./services/supabase");
 const authRouter = require("./routes/auth");
 const cursosRouter = require("./routes/cursos");
 const tareasRouter = require("./routes/tareas");
+const disponibilidadRouter = require("./routes/disponibilidad");
 const requireAuth = require("./middleware/auth");
 
 const app = express();
@@ -61,6 +62,12 @@ app.use("/api/cursos", cursosRouter);
 // DESPUÉS de requireAuth — todas sus rutas exigen JWT válido, y
 // `req.usuario_id` ya está disponible para el controller/service (R1–R12).
 app.use("/api/tareas", tareasRouter);
+
+// /api/disponibilidad: CRUD de bloques de disponibilidad horaria con
+// validación de solapamiento (specs/disponibilidad_crud/design.md §5).
+// Montado DESPUÉS de requireAuth — todas sus rutas exigen JWT válido y
+// `req.usuario_id` ya está disponible para el controller/service (R1–R13).
+app.use("/api/disponibilidad", disponibilidadRouter);
 
 // Middleware de errores centralizado (docs/conventions.md §6): responde con
 // el status/code que llevan los errores lanzados en controllers/services,
