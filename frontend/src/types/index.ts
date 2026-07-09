@@ -57,6 +57,12 @@ export interface Disponibilidad {
   hora_fin: string;
 }
 
+// Payload para crear/actualizar un bloque de disponibilidad
+// (specs/disponibilidad_crud/design.md §6): `id` lo genera la BD y
+// `usuario_id` lo fija el backend desde el JWT (nunca del body), mismo
+// criterio que `NuevoCurso`.
+export type NuevaDisponibilidad = Omit<Disponibilidad, "id" | "usuario_id">;
+
 export interface BloqueHorario {
   id: string;
   tarea_id: string;

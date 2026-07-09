@@ -7,8 +7,11 @@ import { CursoForm } from "./components/CursoForm/CursoForm";
 import { CursoList } from "./components/CursoList/CursoList";
 import { TareaForm } from "./components/TareaForm/TareaForm";
 import { TareaList } from "./components/TareaList/TareaList";
+import { DisponibilidadForm } from "./components/DisponibilidadForm/DisponibilidadForm";
+import { DisponibilidadGrid } from "./components/DisponibilidadGrid/DisponibilidadGrid";
 import { useCursos } from "./hooks/useCursos";
 import { useTareas } from "./hooks/useTareas";
+import { useDisponibilidad } from "./hooks/useDisponibilidad";
 
 type Pantalla = "login" | "register";
 
@@ -21,6 +24,10 @@ function AppShell() {
   const [pantalla, setPantalla] = useState<Pantalla>("login");
   const cursos = useCursos();
   const tareas = useTareas();
+  // Instancia única de useDisponibilidad() en AppShell (design.md §6): ningún
+  // componente hijo llama al hook por su cuenta — todos reciben sus funciones
+  // por props para compartir el mismo estado que la grilla visible.
+  const disponibilidad = useDisponibilidad();
 
   if (!session) {
     return pantalla === "login" ? (
@@ -54,6 +61,13 @@ function AppShell() {
         actualizar={tareas.actualizar}
         eliminar={tareas.eliminar}
         error={tareas.error}
+      />
+      <DisponibilidadForm crear={disponibilidad.crear} error={disponibilidad.error} />
+      <DisponibilidadGrid
+        bloques={disponibilidad.data}
+        actualizar={disponibilidad.actualizar}
+        eliminar={disponibilidad.eliminar}
+        error={disponibilidad.error}
       />
     </main>
   );
