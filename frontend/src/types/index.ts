@@ -20,6 +20,11 @@ export interface Curso {
   creditos?: number;
 }
 
+// Payload para crear/actualizar un curso (specs/cursos_crud/design.md §4):
+// `id` y `usuario_id` nunca los envía el cliente — `id` lo genera la BD,
+// `usuario_id` lo obtiene el backend del JWT (nunca del body, R3).
+export type NuevoCurso = Omit<Curso, "id" | "usuario_id">;
+
 export interface Tarea {
   id: string;
   curso_id: string;
