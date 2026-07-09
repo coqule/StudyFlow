@@ -30,6 +30,16 @@ jest.mock("./services/cursosApi", () => ({
   eliminarCurso: jest.fn(),
 }));
 
+// MOCK: backend desactivado en este test (docs/conventions.md §8) —
+// `tareasApi.ts` lee `import.meta.env.VITE_API_URL`, mismo motivo que el
+// mock de `cursosApi` de arriba (specs/tareas_crud/design.md §5).
+jest.mock("./services/tareasApi", () => ({
+  listarTareas: jest.fn().mockResolvedValue([]),
+  crearTarea: jest.fn(),
+  actualizarTarea: jest.fn(),
+  eliminarTarea: jest.fn(),
+}));
+
 describe("<App />", () => {
   it("renderiza sin lanzar excepción y muestra 'StudyFlow' en el DOM", async () => {
     // AuthProvider resuelve `getSession()` de forma asíncrona al montar —

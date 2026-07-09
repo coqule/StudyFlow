@@ -5,7 +5,10 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { CursoForm } from "./components/CursoForm/CursoForm";
 import { CursoList } from "./components/CursoList/CursoList";
+import { TareaForm } from "./components/TareaForm/TareaForm";
+import { TareaList } from "./components/TareaList/TareaList";
 import { useCursos } from "./hooks/useCursos";
+import { useTareas } from "./hooks/useTareas";
 
 type Pantalla = "login" | "register";
 
@@ -17,6 +20,7 @@ function AppShell() {
   const { session, usuario, logout } = useAuth();
   const [pantalla, setPantalla] = useState<Pantalla>("login");
   const cursos = useCursos();
+  const tareas = useTareas();
 
   if (!session) {
     return pantalla === "login" ? (
@@ -42,6 +46,14 @@ function AppShell() {
         actualizar={cursos.actualizar}
         eliminar={cursos.eliminar}
         error={cursos.error}
+      />
+      <TareaForm crear={tareas.crear} cursos={cursos.data} />
+      <TareaList
+        tareas={tareas.data}
+        cursos={cursos.data}
+        actualizar={tareas.actualizar}
+        eliminar={tareas.eliminar}
+        error={tareas.error}
       />
     </main>
   );

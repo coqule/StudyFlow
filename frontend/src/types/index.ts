@@ -36,6 +36,12 @@ export interface Tarea {
   estado: "pendiente" | "en_progreso" | "completada";
 }
 
+// Payload para crear/actualizar una tarea (specs/tareas_crud/design.md §5):
+// `id` y `estado` nunca los envía el cliente — `id` lo genera la BD,
+// `estado` lo fija el backend a "pendiente" en la creación (R3), mismo
+// criterio que `usuario_id` se excluye de `NuevoCurso`.
+export type NuevaTarea = Omit<Tarea, "id" | "estado">;
+
 export interface Disponibilidad {
   id: string;
   usuario_id: string;
