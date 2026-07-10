@@ -60,15 +60,28 @@ async function createAndSignInTestUser(serviceClient, prefix) {
 }
 
 /**
- * Crea el perfil en `usuarios` (requerido por la FK cursos.usuario_id ->
- * usuarios.id) usando el cliente de service key. Es dato de setup, no lo que
- * se está verificando — R7/R8 se prueban sobre cursos/tareas/disponibilidad/
- * bloques_horario, no sobre la tabla `usuarios` en sí.
+ * Crea (o confirma) el perfil en `usuarios` (requerido por la FK
+ * cursos.usuario_id -> usuarios.id) usando el cliente de service key. Es
+ * dato de setup, no lo que se está verificando — R7/R8 se prueban sobre
+ * cursos/tareas/disponibilidad/bloques_horario, no sobre la tabla
+ * `usuarios` en sí.
+ *
+ * T23 (specs/auth/tasks.md, regresión detectada tras aplicar R13): desde
+ * que existe el trigger de `supabase/migrations/0007_usuarios_auto_provision.sql`,
+ * `serviceClient.auth.admin.createUser(...)` ya deja creada esta fila
+ * automáticamente. Un `insert` aquí chocaba con
+ * `duplicate key value violates unique constraint "usuarios_pkey"`. Se usa
+ * `upsert(..., { onConflict: "id" })` — mismo patrón que
+ * `backend/src/services/authService.js#registrar()` (T18) — para tolerar
+ * que el trigger ya haya creado la fila sin dejar de garantizar que
+ * `nombre`/`correo` queden con los valores que este helper espera para sus
+ * fixtures de test.
  */
 async function crearPerfilUsuario(serviceClient, usuario) {
-  const { error } = await serviceClient
-    .from("usuarios")
-    .insert({ id: usuario.id, nombre: `Test ${usuario.email}`, correo: usuario.email });
+  const { error } = await serviceClient.from("usuarios").upsert(
+    { id: usuario.id, nombre: `Test ${usuario.email}`, correo: usuario.email },
+    { onConflict: "id" }
+  );
   if (error) throw error;
 }
 

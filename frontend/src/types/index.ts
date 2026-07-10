@@ -20,6 +20,11 @@ export interface Curso {
   creditos?: number;
 }
 
+// Payload para crear/actualizar un curso (specs/cursos_crud/design.md §4):
+// `id` y `usuario_id` nunca los envía el cliente — `id` lo genera la BD,
+// `usuario_id` lo obtiene el backend del JWT (nunca del body, R3).
+export type NuevoCurso = Omit<Curso, "id" | "usuario_id">;
+
 export interface Tarea {
   id: string;
   curso_id: string;
@@ -30,6 +35,12 @@ export interface Tarea {
   prioridad: number; // 1-5
   estado: "pendiente" | "en_progreso" | "completada";
 }
+
+// Payload para crear/actualizar una tarea (specs/tareas_crud/design.md §5):
+// `id` y `estado` nunca los envía el cliente — `id` lo genera la BD,
+// `estado` lo fija el backend a "pendiente" en la creación (R3), mismo
+// criterio que `usuario_id` se excluye de `NuevoCurso`.
+export type NuevaTarea = Omit<Tarea, "id" | "estado">;
 
 export interface Disponibilidad {
   id: string;
@@ -45,6 +56,12 @@ export interface Disponibilidad {
   hora_inicio: string;
   hora_fin: string;
 }
+
+// Payload para crear/actualizar un bloque de disponibilidad
+// (specs/disponibilidad_crud/design.md §6): `id` lo genera la BD y
+// `usuario_id` lo fija el backend desde el JWT (nunca del body), mismo
+// criterio que `NuevoCurso`.
+export type NuevaDisponibilidad = Omit<Disponibilidad, "id" | "usuario_id">;
 
 export interface BloqueHorario {
   id: string;
