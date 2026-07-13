@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+
+StudyFlow | Cursos
+
+</title>
+
+<link rel="stylesheet"
+href="style.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<!--========================
+        SIDEBAR
+=========================-->
+
+<aside class="sidebar">
+
+<div class="logo">
+
+Study<span>Flow</span>
+
+</div>
+
+<ul>
+
+<li>
+
+<a href="index.html">
+
+<i class="fa-solid fa-house"></i>
+
+&nbsp;
+
+Dashboard
+
+</a>
+
+</li>
+
+<li>
+
+<a href="calendario.html">
+
+<i class="fa-solid fa-calendar-days"></i>
+
+&nbsp;
+
+Calendario
+
+</a>
+
+</li>
+
+<li>
+
+<a href="cursos.html">
+
+<i class="fa-solid fa-book"></i>
+
+&nbsp;
+
+Cursos
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#">
+
+<i class="fa-solid fa-clock-rotate-left"></i>
+
+&nbsp;
+
+Historial
+
+</a>
+
+</li>
+
+<li>
+
+<a href="#">
+
+<i class="fa-solid fa-gear"></i>
+
+&nbsp;
+
+Configuración
+
+</a>
+
+</li>
+
+</ul>
+
+</aside>
+
+<!--========================
+        CONTENIDO
+=========================-->
+
+<main class="main">
+
+<header>
+
+<div>
+
+<h2>
+
+Cursos
+
+</h2>
+
+<p style="color:gray">
+
+Administra la información académica.
+
+</p>
+
+</div>
+
+<div class="user">
+
+<span>
+
+Usuario
+
+</span>
+
+<div class="avatar"></div>
+
+</div>
+
+</header>
+
+<section class="container">
+
+<div
+style="display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:30px;">
+
+<div>
+
+<h2>
+
+Gestión de cursos
+
+</h2>
+
+<p style="color:gray;">
+
+Registra los cursos del semestre.
+
+</p>
+
+</div>
+
+<button>
+
+<i class="fa-solid fa-plus"></i>
+
+Nuevo curso
+
+</button>
+
+</div>
+
+<!--==================================
+        FORMULARIO
+===================================-->
+
+<div class="form">
+
+    <h2>
+
+        Registrar nuevo curso
+
+    </h2>
+
+    <p style="color:gray; margin:10px 0 30px;">
+
+        Completa la información del curso para que
+        la IA pueda organizar tu horario.
+
+    </p>
+
+    <div class="cards">
+
+        <!-- Nombre -->
+
+        <div class="form-group">
+
+            <label>
+
+                Nombre del curso
+
+            </label>
+
+            <input
+                type="text"
+                placeholder="Ej: Programación IV">
+
+        </div>
+
+        <!-- Profesor -->
+
+        <div class="form-group">
+
+            <label>
+
+                Profesor
+
+            </label>
+
+            <input
+                type="text"
+                placeholder="Nombre del profesor">
+
+        </div>
+
+        <!-- Créditos -->
+
+        <div class="form-group">
+
+            <label>
+
+                Créditos
+
+            </label>
+
+            <input
+                type="number"
+                min="1"
+                max="8">
+
+        </div>
+
+        <!-- Dificultad -->
+
+        <div class="form-group">
+
+            <label>
+
+                Dificultad
+
+            </label>
+
+            <select>
+
+                <option>
+
+                    Seleccionar
+
+                </option>
+
+                <option>1 - Muy fácil</option>
+
+                <option>2</option>
+
+                <option>3</option>
+
+                <option>4</option>
+
+                <option>5 - Muy difícil</option>
+
+            </select>
+
+        </div>
+
+        <!-- Color -->
+
+        <div class="form-group">
+
+            <label>
+
+                Color del curso
+
+            </label>
+
+            <input type="color">
+
+        </div>
+
+        <!-- Horario -->
+
+        <div class="form-group">
+
+            <label>
+
+                Horario
+
+            </label>
+
+            <input
+                type="text"
+                placeholder="Ej: Lunes y Miércoles 8:00 - 10:00">
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <button>
+
+        <i class="fa-solid fa-floppy-disk"></i>
+
+        Guardar curso
+
+    </button>
+
+</div>
+
+<!--==================================
+    DISPONIBILIDAD
+===================================-->
+
+<div class="form">
+
+    <h2>
+
+        Disponibilidad semanal
+
+    </h2>
+
+    <p style="color:gray; margin:10px 0 30px;">
+
+        Indica los horarios en los que puedes estudiar.
+
+    </p>
+
+    <div class="cards">
+
+        <div class="form-group">
+
+            <label>Día</label>
+
+            <select>
+
+                <option>Lunes</option>
+                <option>Martes</option>
+                <option>Miércoles</option>
+                <option>Jueves</option>
+                <option>Viernes</option>
+                <option>Sábado</option>
+                <option>Domingo</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label>
+
+                Hora inicio
+
+            </label>
+
+            <input type="time">
+
+        </div>
+
+        <div class="form-group">
+
+            <label>
+
+                Hora fin
+
+            </label>
+
+            <input type="time">
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <button>
+
+        <i class="fa-solid fa-plus"></i>
+
+        Agregar disponibilidad
+
+    </button>
+
+</div>

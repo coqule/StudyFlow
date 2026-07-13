@@ -1,13 +1,324 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StudyFlow</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow | Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Iconos -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- ==========================
+            SIDEBAR
+    =========================== -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            Study<span>Flow</span>
+        </div>
+
+        <ul>
+
+            <li>
+                <a href="index.html">
+                    <i class="fa-solid fa-house"></i>&nbsp;&nbsp;
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="calendario.html">
+                    <i class="fa-solid fa-calendar-days"></i>&nbsp;&nbsp;
+                    Calendario
+                </a>
+            </li>
+
+            <li>
+                <a href="cursos.html">
+                    <i class="fa-solid fa-book"></i>&nbsp;&nbsp;
+                    Cursos
+                </a>
+            </li>
+
+            <li>
+                <a href="#">
+                    <i class="fa-solid fa-clock-rotate-left"></i>&nbsp;&nbsp;
+                    Historial
+                </a>
+            </li>
+
+            <li>
+                <a href="#">
+                    <i class="fa-solid fa-gear"></i>&nbsp;&nbsp;
+                    Configuración
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- ==========================
+            CONTENIDO
+    =========================== -->
+
+    <main class="main">
+
+        <!-- HEADER -->
+
+        <header>
+
+            <div>
+
+                <h2>Dashboard</h2>
+
+                <p style="color:gray;">
+                    Bienvenido a StudyFlow
+                </p>
+
+            </div>
+
+            <div class="user">
+
+                <span>Usuario</span>
+
+                <div class="avatar"></div>
+
+            </div>
+
+        </header>
+
+        <!-- CONTENIDO -->
+
+        <section class="container">
+
+            <!-- TARJETAS -->
+
+            <div class="cards">
+
+                <div class="card">
+
+                    <h4>Cursos registrados</h4>
+
+                    <h2>5</h2>
+
+                    <p>
+                        Cursos activos este semestre.
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Horas disponibles</h4>
+
+                    <h2>18 h</h2>
+
+                    <p>
+                        Horas de estudio registradas.
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Horario IA</h4>
+
+                    <h2>Listo</h2>
+
+                    <p>
+                        Genera una nueva planificación.
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Próxima actualización</h4>
+
+                    <h2>Hoy</h2>
+
+                    <p>
+                        El sistema puede reorganizar tu horario.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- PANEL PRINCIPAL -->
+
+            <div class="form">
+
+                <h2 style="margin-bottom:20px;">
+                    Resumen semanal
+                </h2>
+
+                <p style="margin-bottom:25px;color:gray;">
+
+                    Aquí aparecerá un resumen generado por el sistema con la
+                    organización de tu semana, estadísticas y recomendaciones
+                    de estudio.
+
+                </p>
+
+                <button>
+
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                    Generar horario
+
+                </button>
+
+            </div>
+
+            <!-- CURSOS -->
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Curso</th>
+
+                        <th>Dificultad</th>
+
+                        <th>Color</th>
+
+                        <th>Profesor</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+
+                        <td>Programación</td>
+
+                        <td>5</td>
+
+                        <td>🔵</td>
+
+                        <td>Profesor 1</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>Base de Datos</td>
+
+                        <td>4</td>
+
+                        <td>🟢</td>
+
+                        <td>Profesor 2</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>Redes</td>
+
+                        <td>3</td>
+
+                        <td>🟠</td>
+
+                        <td>Profesor 3</td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>Inteligencia Artificial</td>
+
+                        <td>5</td>
+
+                        <td>🟣</td>
+
+                        <td>Profesor 4</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+            <!-- ACCIONES -->
+
+            <div class="cards" style="margin-top:30px;">
+
+                <div class="card">
+
+                    <h3>
+                        Registrar curso
+                    </h3>
+
+                    <p style="margin-top:15px;">
+
+                        Agrega nuevos cursos para que el sistema
+                        pueda generar tu horario.
+
+                    </p>
+
+                    <br>
+
+                    <a href="cursos.html">
+
+                        <button>
+
+                            Ir
+
+                        </button>
+
+                    </a>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>
+
+                        Ver calendario
+
+                    </h3>
+
+                    <p style="margin-top:15px;">
+
+                        Consulta la planificación semanal.
+
+                    </p>
+
+                    <br>
+
+                    <a href="calendario.html">
+
+                        <button>
+
+                            Abrir
+
+                        </button>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
 </html>
