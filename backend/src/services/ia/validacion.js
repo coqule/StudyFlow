@@ -4,7 +4,7 @@
 // validar y devolver el array de bloques listo para consumir.
 
 const DIAS_SEMANA = [
-  "domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado",
+  "domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado",
 ];
 
 /**
@@ -126,15 +126,18 @@ function validarRespuesta(respuestaRaw, disponibilidad = []) {
   if (disponibilidad.length > 0) {
     for (const bloque of parsed.bloques) {
       const dia = diaSemanaDesdeFecha(bloque.fecha);
-      const rango = disponibilidad.find((d) => d.dia === dia);
-      if (!rango) {
+      const rangosDelDia = disponibilidad.filter((d) => d.dia === dia);
+      if (rangosDelDia.length === 0) {
         throw new Error(
           `El bloque ${bloque.tarea_id} del ${bloque.fecha} (${dia}) está fuera de la disponibilidad declarada.`
         );
       }
-      if (bloque.hora_inicio < rango.inicio || bloque.hora_fin > rango.fin) {
+      const cabeEnAlguno = rangosDelDia.some(
+        (r) => bloque.hora_inicio >= r.inicio && bloque.hora_fin <= r.fin
+      );
+      if (!cabeEnAlguno) {
         throw new Error(
-          `El bloque ${bloque.tarea_id} del ${bloque.fecha} excede el rango de disponibilidad (${rango.inicio}-${rango.fin}).`
+          `El bloque ${bloque.tarea_id} del ${bloque.fecha} excede los rangos de disponibilidad.`
         );
       }
     }
