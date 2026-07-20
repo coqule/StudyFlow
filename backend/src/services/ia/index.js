@@ -3,7 +3,8 @@
 // 9/10). Los consumidores del módulo importan desde aquí (require("../services/
 // ia")), no desde los archivos internos (./gemini, ./contexto).
 const { construirContexto } = require("./contexto");
-const { llamarGemini, validarRespuesta } = require("./gemini");
+const { llamarGemini } = require("./gemini");
+const { validarRespuesta } = require("./validacion");
 
 module.exports = {
   construirContexto,
