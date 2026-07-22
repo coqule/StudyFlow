@@ -6,6 +6,7 @@ const authRouter = require("./routes/auth");
 const cursosRouter = require("./routes/cursos");
 const tareasRouter = require("./routes/tareas");
 const disponibilidadRouter = require("./routes/disponibilidad");
+const horariosRouter = require("./routes/horarios");
 const requireAuth = require("./middleware/auth");
 
 const app = express();
@@ -68,6 +69,12 @@ app.use("/api/tareas", tareasRouter);
 // Montado DESPUÉS de requireAuth — todas sus rutas exigen JWT válido y
 // `req.usuario_id` ya está disponible para el controller/service (R1–R13).
 app.use("/api/disponibilidad", disponibilidadRouter);
+
+// /api/horarios: generación batch del horario semanal vía IA
+// (specs/ia_endpoint_generar/design.md §3). Montado DESPUÉS de requireAuth —
+// POST /generar exige JWT válido y `req.usuario_id` ya está disponible para el
+// controller/service (R1).
+app.use("/api/horarios", horariosRouter);
 
 // Middleware de errores centralizado (docs/conventions.md §6): responde con
 // el status/code que llevan los errores lanzados en controllers/services,
