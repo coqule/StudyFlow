@@ -19,6 +19,79 @@
 
 ---
 
+## ADR-005 — Sistema de diseño «Cognitive Flow»: el frontmatter manda y el primario es `#0058be`
+
+- **Fecha:** 2026-07-23
+- **Estado:** Aceptada
+- **Alcance:** todo el rediseño de UI (`frontend/src/`), rama
+  `feature/rediseno_ui`. No afecta al backend ni a ningún contrato HTTP.
+- **Origen del diseño:** proyecto Stitch «Modern AI Calendar»
+  (id `16709757428734443902`), sistema de diseño «Cognitive Flow».
+
+**Contexto.** El `designMd` exportado por Stitch **se contradice a sí mismo**.
+Convive un frontmatter YAML generado desde Material 3 con una prosa escrita en
+paleta Slate de Tailwind, y los valores no coinciden:
+
+| Concepto | Dice la prosa | Dice el frontmatter |
+|---|---|---|
+| Texto de titulares | `#0F172A` | `on-surface: #191c1e` |
+| Texto de cuerpo | `#64748B` | `on-surface-variant: #424754` |
+| Fondo base | `#FFFFFF` | `background: #f7f9fb` |
+| Bordes | `#E2E8F0` | `outline-variant: #c2c6d6` |
+
+Ninguno de los valores de la columna central existe en la lista de tokens.
+Además, el color primario aparece con **dos valores distintos** en el mismo
+export: `designTheme.overridePrimaryColor` es `#3b82f6`, mientras que
+`namedColors.primary` y el frontmatter del `designMd` dicen `#0058be`.
+
+Implementar copiando hex de la prosa produce, de forma garantizada, una paleta
+divergente: varios azules y varios grises conviviendo sin criterio.
+
+**Decisión.**
+
+1. **El frontmatter YAML del `designMd` es la única fuente de verdad** para
+   valores concretos (colores, tipografía, radios, espaciado). Está generado
+   por máquina y es internamente consistente.
+2. **La prosa se usa solo como intención de diseño** — jerarquía, ritmo
+   vertical, comportamiento de los componentes, barra de acento a la izquierda
+   en los eventos. Sus valores hexadecimales **se ignoran**.
+3. **El color primario es `#0058be`.**
+
+**Fundamento del primario.** Medición WCAG 2.1 de ambos candidatos:
+
+| Candidato | Blanco sobre el color | Color sobre `#f7f9fb` | AA (4.5:1) |
+|---|---|---|---|
+| `#3b82f6` | 3.68:1 | 3.48:1 | **falla ambos** |
+| `#0058be` | 6.69:1 | 6.34:1 | pasa ambos |
+
+`#3b82f6` deja por debajo del umbral el texto del botón primario y todos los
+enlaces. StudyFlow es una aplicación de uso prolongado y frecuentemente
+nocturno; el coste de un contraste insuficiente no aparece en ningún test ni
+log, pero se acumula en fatiga del usuario.
+
+Los tonos brillantes siguen disponibles para superficies grandes y elementos
+decorativos vía `primary-container: #2170e4`, que es la separación que Material
+3 ya prevé entre `primary` (carga texto e interacción) y `primary-container`
+(no carga texto pequeño).
+
+**Consecuencias.**
+- Los tokens se declaran una sola vez, derivados del frontmatter. Ningún
+  componente escribe un hex literal.
+- Cualquier valor de la prosa que se quiera adoptar exige una entrada nueva en
+  este registro; no se introduce por la vía de los hechos.
+- Si Stitch reexporta el diseño, la contradicción volverá: este ADR es también
+  la instrucción de cómo resolverla la próxima vez.
+
+**Alternativas descartadas.**
+- **Adoptar `#3b82f6`** por fidelidad a la «energía proactiva» que pide la
+  prosa: descartada por accesibilidad. La vibración se recupera con
+  `primary-container` sin comprometer la legibilidad.
+- **Tomar la prosa como fuente de verdad**: descartada porque sus valores no
+  forman un sistema cerrado — carece de contenedores, estados invertidos y
+  colores fijos que el frontmatter sí define.
+
+---
+
 ## ADR-004 — Resiliencia ante inestabilidad de Gemini: timeout explícito + retry con backoff (recomendación para el manejo de errores de IA)
 
 - **Fecha:** 2026-07-23
