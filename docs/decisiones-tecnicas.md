@@ -19,6 +19,71 @@
 
 ---
 
+## ADR-006 — Navegación: un solo eje, y qué partes del diseño de Stitch no se implementan
+
+- **Fecha:** 2026-07-23
+- **Estado:** Aceptada
+- **Alcance:** `frontend/src/components/ui/AppLayout.tsx`,
+  `frontend/src/pages/PanelRegistroPage.tsx`. No afecta al backend.
+
+**Contexto.** La pantalla «Registro Unificado» del proyecto Stitch incluye
+varios elementos de interfaz que no se corresponden con el estado del
+producto:
+
+- **Dos navegaciones paralelas y disjuntas:** una barra lateral (Calendario,
+  Cursos, Historial) y una nav superior (Resumen general, Horario, Recursos).
+  Seis destinos sin superposición ni jerarquía visible, para una aplicación
+  que hoy tiene una sola pantalla.
+- **Un botón `dark_mode`**, aunque «Cognitive Flow» declara `colorMode: LIGHT`
+  y no define ningún token oscuro (ADR-005).
+- **Un botón de menú en móvil**, que abriría un cajón inexistente.
+- Cuatro de los seis destinos de navegación no tienen página.
+
+Estas piezas son cromo generado por la herramienta de diseño, no decisiones de
+producto tomadas por el equipo.
+
+**Decisión.**
+
+1. **Un solo eje de navegación: la barra lateral.** Se descarta la nav
+   superior del diseño. La cabecera queda para controles de sesión (nombre de
+   usuario y cerrar sesión).
+2. **Los destinos sin página se renderizan como `<button disabled>`** con un
+   « (próximamente)» accesible. Se ven —comunican hacia dónde va el
+   producto— pero no reciben foco ni responden al clic.
+3. **No se implementa `dark_mode`** hasta que exista una paleta oscura
+   decidida, que requerirá su propia entrada en este registro.
+4. **No se implementa el botón de menú móvil.** Por debajo de `md` la barra
+   se oculta, igual que en el diseño.
+
+**Fundamento.** Dos navegaciones sin jerarquía no duplican el acceso: obligan
+al usuario a revisar ambas porque ninguna es predecible. Y un control que no
+lleva a ningún lado es peor que su ausencia, porque falla en silencio: no
+lanza error, no deja rastro, y el usuario concluye que la aplicación está
+rota antes que sospechar que la función no existe.
+
+**Consecuencias.**
+- `AppLayout` es independiente de cualquier página: recibe `seccionActiva` y
+  `children`. Las pantallas futuras se cuelgan del mismo marco.
+- Habilitar un destino cuando exista su página es cambiar `disponible: true`
+  en el arreglo `NAVEGACION`; al instalar un router, esos `<button disabled>`
+  pasan a ser enlaces.
+- La aplicación se ve deliberadamente más sobria que el mockup. Quien compare
+  ambos debe leer esta entrada antes de reportarlo como faltante.
+- Los ítems deshabilitados quedan en 2.48:1 de contraste, por debajo del
+  umbral AA. Es intencional: WCAG exime a los controles inactivos, y el
+  contraste bajo es precisamente lo que comunica su estado.
+
+**Alternativas descartadas.**
+- **Implementar las dos navegaciones con enlaces muertos:** fiel al mockup,
+  pero traslada al usuario el costo de descubrir qué funciona.
+- **Instalar un router y crear páginas placeholder** para los cuatro destinos:
+  la barra quedaría idéntica al diseño, a cambio de una dependencia nueva y
+  cuatro pantallas vacías que mantener sin contenido que justificarlas.
+- **Omitir los ítems sin página:** la opción más honesta con el estado actual,
+  descartada porque oculta la dirección del producto a quien lo usa.
+
+---
+
 ## ADR-005 — Sistema de diseño «Cognitive Flow»: el frontmatter manda y el primario es `#0058be`
 
 - **Fecha:** 2026-07-23

@@ -53,7 +53,7 @@ describe("<CursoForm />", () => {
     const user = userEvent.setup();
     render(<CursoForm crear={mockCrear} />);
 
-    expect(screen.getByLabelText("Color personalizado")).toBeInTheDocument();
+    expect(screen.getByLabelText("Personalizado")).toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Nombre del curso"), "Física");
     await user.click(screen.getByRole("radio", { name: "Verde" }));

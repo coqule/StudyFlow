@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
-import { BOTON_SECUNDARIO, SECCION, TITULO_SECCION } from "../components/ui/clases";
+import { AppLayout } from "../components/ui/AppLayout";
+import { SECCION, TITULO_SECCION } from "../components/ui/clases";
 
 interface PanelRegistroPageProps {
   nombreUsuario: string;
@@ -25,9 +26,19 @@ function Seccion({ titulo, children }: SeccionProps) {
   );
 }
 
-// Armazón del «Panel de Registro» (pantalla "Registro Unificado" del proyecto
-// Stitch «Modern AI Calendar»). Es puramente de composición: recibe cada
-// sección ya construida por props y no llama a ningún hook de datos.
+// Lleva el foco al primer campo del formulario de tareas. Es la acción real
+// que el botón «Nueva tarea» de la barra lateral puede cumplir hoy: no hay
+// pantalla de creación aparte, el formulario ya está en esta misma página.
+function enfocarNuevaTarea() {
+  const campo = document.getElementById("tarea-titulo");
+  if (!campo) return;
+  campo.scrollIntoView({ behavior: "smooth", block: "center" });
+  campo.focus({ preventScroll: true });
+}
+
+// Contenido del «Panel de Registro» (pantalla "Registro Unificado" del
+// proyecto Stitch «Modern AI Calendar»). Es puramente de composición: recibe
+// cada sección ya construida por props y no llama a ningún hook de datos.
 //
 // Esto es deliberado. Las instancias de useCursos/useTareas/useDisponibilidad
 // viven una sola vez en AppShell (App.tsx §27) para que formularios y listas
@@ -46,35 +57,28 @@ export function PanelRegistroPage({
   seccionResumen,
 }: PanelRegistroPageProps) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-sm md:px-lg">
-        <span className="font-display text-headline-sm text-primary">StudyFlow</span>
-        <div className="flex items-center gap-sm">
-          <span className="text-body-sm text-on-surface-variant">{nombreUsuario}</span>
-          <button type="button" onClick={onCerrarSesion} className={BOTON_SECUNDARIO}>
-            Cerrar sesión
-          </button>
+    <AppLayout
+      nombreUsuario={nombreUsuario}
+      seccionActiva="Cursos"
+      onCerrarSesion={onCerrarSesion}
+      onNuevaTarea={enfocarNuevaTarea}
+    >
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-gutter pb-xl">
+        <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-sm">
+          <h1 className="font-display text-headline-md text-on-surface">Panel de Registro</h1>
         </div>
-      </header>
 
-      <main className="flex-1 overflow-y-auto p-md md:p-gutter">
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-gutter pb-xl">
-          <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-sm">
-            <h1 className="font-display text-headline-md text-on-surface">Panel de Registro</h1>
+        <div className="grid grid-cols-1 gap-gutter lg:grid-cols-12">
+          <div className="flex flex-col gap-gutter lg:col-span-5">
+            <Seccion titulo="Cursos">{seccionCursos}</Seccion>
+            <Seccion titulo="Tareas / Evaluaciones">{seccionTareas}</Seccion>
           </div>
-
-          <div className="grid grid-cols-1 gap-gutter lg:grid-cols-12">
-            <div className="flex flex-col gap-gutter lg:col-span-5">
-              <Seccion titulo="Cursos">{seccionCursos}</Seccion>
-              <Seccion titulo="Tareas / Evaluaciones">{seccionTareas}</Seccion>
-            </div>
-            <div className="flex flex-col gap-gutter lg:col-span-7">
-              <Seccion titulo="Disponibilidad semanal">{seccionDisponibilidad}</Seccion>
-              <Seccion titulo="Lista de cursos y tareas registradas">{seccionResumen}</Seccion>
-            </div>
+          <div className="flex flex-col gap-gutter lg:col-span-7">
+            <Seccion titulo="Disponibilidad semanal">{seccionDisponibilidad}</Seccion>
+            <Seccion titulo="Lista de cursos y tareas registradas">{seccionResumen}</Seccion>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

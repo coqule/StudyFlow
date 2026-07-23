@@ -86,11 +86,11 @@ export function CursoForm({ crear }: CursoFormProps) {
                   onChange={() => setDificultad(valor)}
                   className="peer sr-only"
                 />
-                <span
-                  aria-hidden="true"
-                  className="block size-5 rounded-full border-2 border-outline-variant transition-colors peer-hover:border-primary peer-checked:border-primary peer-checked:bg-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40"
-                />
-                <span className="sr-only">{valor}</span>
+                {/* El número va dentro del círculo, así la etiqueta visible
+                    y el nombre accesible son el mismo texto. */}
+                <span className="flex size-8 items-center justify-center rounded-full border-2 border-outline text-body-sm text-on-surface-variant transition-colors peer-hover:border-primary peer-checked:border-primary peer-checked:bg-primary peer-checked:text-on-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40">
+                  {valor}
+                </span>
               </label>
             ))}
           </div>
@@ -117,16 +117,23 @@ export function CursoForm({ crear }: CursoFormProps) {
                 <span className="sr-only">{nombreColor}</span>
               </label>
             ))}
-            <label htmlFor="curso-color" className="sr-only">
-              Color personalizado
+            {/* Separador y borde punteado: el selector libre no debe leerse
+                como una cuarta muestra. La etiqueta visible es lo que más
+                comunica que abre un selector, no un color más. */}
+            <span aria-hidden="true" className="mx-xs h-6 w-px bg-outline-variant" />
+            <label
+              htmlFor="curso-color"
+              className="flex cursor-pointer items-center gap-xs text-label-md text-on-surface-variant transition-colors hover:text-primary"
+            >
+              <input
+                id="curso-color"
+                type="color"
+                value={color}
+                onChange={(event) => setColor(event.target.value)}
+                className="size-6 cursor-pointer rounded-full border-2 border-dashed border-outline bg-transparent p-0"
+              />
+              Personalizado
             </label>
-            <input
-              id="curso-color"
-              type="color"
-              value={color}
-              onChange={(event) => setColor(event.target.value)}
-              className="size-6 cursor-pointer rounded border border-outline-variant bg-transparent p-0"
-            />
           </div>
         </fieldset>
       </div>
