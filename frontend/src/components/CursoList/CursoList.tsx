@@ -18,11 +18,11 @@ interface CursoListProps {
 // tal cual a cada `CursoListItem` (R17, R24).
 export function CursoList({ cursos, actualizar, eliminar, error }: CursoListProps) {
   if (cursos.length === 0) {
-    return <p>Aún no tienes cursos.</p>;
+    return <p className="text-body-sm text-on-surface-variant">Aún no tienes cursos.</p>;
   }
 
   return (
-    <ul className="flex w-full max-w-sm flex-col gap-2">
+    <ul className="flex flex-col gap-xs">
       {cursos.map((curso) => (
         <CursoListItem
           key={curso.id}

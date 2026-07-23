@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { PanelRegistroPage } from "./pages/PanelRegistroPage";
 import { CursoForm } from "./components/CursoForm/CursoForm";
 import { CursoList } from "./components/CursoList/CursoList";
 import { TareaForm } from "./components/TareaForm/TareaForm";
@@ -37,39 +38,45 @@ function AppShell() {
     );
   }
 
-  // Con sesión activa se reemplaza el placeholder por el formulario y la
-  // lista de cursos (specs/cursos_crud/design.md §4, R12, R15). Cambio
-  // mínimo — no se introduce routing nuevo.
+  // Con sesión activa se muestra el Panel de Registro (pantalla "Registro
+  // Unificado" del diseño). PanelRegistroPage solo compone: los hooks siguen
+  // instanciados aquí y sus funciones bajan por props, tal como exige §6 —
+  // no se introduce routing nuevo.
   return (
-    <main className="flex min-h-screen flex-col items-center gap-6 bg-white p-6 text-center">
-      <h1 className="text-3xl font-semibold text-on-surface">StudyFlow</h1>
-      <p className="text-on-surface-variant">Hola, {usuario?.nombre || usuario?.correo}.</p>
-      <button type="button" onClick={() => void logout()}>
-        Cerrar sesión
-      </button>
-      <CursoForm crear={cursos.crear} />
-      <CursoList
-        cursos={cursos.data}
-        actualizar={cursos.actualizar}
-        eliminar={cursos.eliminar}
-        error={cursos.error}
-      />
-      <TareaForm crear={tareas.crear} cursos={cursos.data} />
-      <TareaList
-        tareas={tareas.data}
-        cursos={cursos.data}
-        actualizar={tareas.actualizar}
-        eliminar={tareas.eliminar}
-        error={tareas.error}
-      />
-      <DisponibilidadForm crear={disponibilidad.crear} error={disponibilidad.error} />
-      <DisponibilidadGrid
-        bloques={disponibilidad.data}
-        actualizar={disponibilidad.actualizar}
-        eliminar={disponibilidad.eliminar}
-        error={disponibilidad.error}
-      />
-    </main>
+    <PanelRegistroPage
+      nombreUsuario={usuario?.nombre || usuario?.correo || ""}
+      onCerrarSesion={() => void logout()}
+      seccionCursos={<CursoForm crear={cursos.crear} />}
+      seccionTareas={<TareaForm crear={tareas.crear} cursos={cursos.data} />}
+      seccionDisponibilidad={
+        <div className="flex flex-col gap-md">
+          <DisponibilidadForm crear={disponibilidad.crear} error={disponibilidad.error} />
+          <DisponibilidadGrid
+            bloques={disponibilidad.data}
+            actualizar={disponibilidad.actualizar}
+            eliminar={disponibilidad.eliminar}
+            error={disponibilidad.error}
+          />
+        </div>
+      }
+      seccionResumen={
+        <div className="flex flex-col gap-md">
+          <CursoList
+            cursos={cursos.data}
+            actualizar={cursos.actualizar}
+            eliminar={cursos.eliminar}
+            error={cursos.error}
+          />
+          <TareaList
+            tareas={tareas.data}
+            cursos={cursos.data}
+            actualizar={tareas.actualizar}
+            eliminar={tareas.eliminar}
+            error={tareas.error}
+          />
+        </div>
+      }
+    />
   );
 }
 

@@ -85,8 +85,8 @@ describe("Integración CursoForm -> CursoList (R30)", () => {
 
     expect(screen.getByText("Aún no tienes cursos.")).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText("Nombre"), "Cálculo II");
-    await user.selectOptions(screen.getByLabelText("Dificultad"), "5");
+    await user.type(screen.getByLabelText("Nombre del curso"), "Cálculo II");
+    await user.click(screen.getByRole("radio", { name: "5" }));
     // `App` ahora también monta `TareaForm` (tareas_crud), que tiene su
     // propio botón "Guardar" — se toma el primero (el de `CursoForm`,
     // montado antes en el árbol) para no ambigüar la consulta.

@@ -129,8 +129,18 @@
   --spacing-margin-desktop: 48px;
 
   /* Radii */
+  --radius-DEFAULT: 0.5rem;
+  --radius-base: 0.5rem;
   --radius-sm: 0.25rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+  }
 }

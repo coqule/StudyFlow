@@ -17,8 +17,8 @@ describe("<CursoForm />", () => {
     const user = userEvent.setup();
     render(<CursoForm crear={mockCrear} />);
 
-    await user.type(screen.getByLabelText("Nombre"), "Cálculo II");
-    await user.selectOptions(screen.getByLabelText("Dificultad"), "5");
+    await user.type(screen.getByLabelText("Nombre del curso"), "Cálculo II");
+    await user.click(screen.getByRole("radio", { name: "5" }));
     await user.click(screen.getByText("Guardar"));
 
     expect(mockCrear).toHaveBeenCalledWith({
@@ -36,5 +36,33 @@ describe("<CursoForm />", () => {
 
     expect(screen.getByRole("alert")).toHaveTextContent(/nombre/i);
     expect(mockCrear).not.toHaveBeenCalled();
+  });
+
+  // La dificultad se expone como grupo de radios y no como <span> clicables:
+  // debe ser alcanzable y operable por el árbol de accesibilidad (el diseño
+  // de Stitch usaba spans, que ningún lector de pantalla anuncia).
+  it("expone la dificultad como radios accesibles con nombre 1 a 5", () => {
+    render(<CursoForm crear={mockCrear} />);
+
+    for (const valor of ["1", "2", "3", "4", "5"]) {
+      expect(screen.getByRole("radio", { name: valor })).toBeInTheDocument();
+    }
+  });
+
+  it("permite elegir un color sugerido y conserva el selector libre (R12)", async () => {
+    const user = userEvent.setup();
+    render(<CursoForm crear={mockCrear} />);
+
+    expect(screen.getByLabelText("Color personalizado")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Nombre del curso"), "Física");
+    await user.click(screen.getByRole("radio", { name: "Verde" }));
+    await user.click(screen.getByText("Guardar"));
+
+    expect(mockCrear).toHaveBeenCalledWith({
+      nombre: "Física",
+      color: "#006c49",
+      dificultad: 1,
+    });
   });
 });
