@@ -29,6 +29,20 @@ const PROMPT_SISTEMA =
   'objeto JSON con la forma: { "bloques": [ { "tarea_id", ' +
   '"fecha", "hora_inicio", "hora_fin", "justificacion" } ] }';
 
+// Feature 12 (R4) — Anexo del modo ajuste LITERAL (docs/reglas-ia.md § "Para el
+// modo ajuste, agregar al final del prompt"). Igual que PROMPT_SISTEMA: el
+// bloque del doc está envuelto a ~60 columnas y los saltos de línea NO son
+// significativos, así que las líneas se unen con espacios simples, palabra por
+// palabra, sin parafrasear. El espacio inicial separa el anexo del final de
+// PROMPT_SISTEMA al concatenarse en `config.systemInstruction` (llamarGemini
+// NO se modifica: ya acepta `promptAdicional`).
+const ANEXO_MODO_AJUSTE =
+  " El horario vigente está en horario_vigente. La instrucción " +
+  "del usuario está en instruccion_usuario. Devuelve SOLO los " +
+  'bloques que cambian: { "bloques_eliminados": ["id1", "id2"], ' +
+  '"bloques_creados": [ { "tarea_id", "fecha", "hora_inicio", ' +
+  '"hora_fin", "justificacion" } ] }';
+
 /**
  * Llama a Gemini con el contexto reducido y devuelve el texto crudo de la
  * respuesta (JSON sin parsear). NO valida ni transforma la respuesta ni captura
@@ -52,4 +66,4 @@ async function llamarGemini(contexto, promptAdicional = "") {
   return response.text; // R6 — texto crudo (string | undefined), sin parsear
 }
 
-module.exports = { llamarGemini };
+module.exports = { llamarGemini, ANEXO_MODO_AJUSTE };

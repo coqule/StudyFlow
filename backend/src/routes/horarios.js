@@ -8,5 +8,6 @@ const horariosController = require("../controllers/horariosController");
 const router = express.Router();
 
 router.post("/generar", horariosController.generar);
+router.post("/ajustar", horariosController.ajustar);
 
 module.exports = router;

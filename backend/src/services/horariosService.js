@@ -2,7 +2,13 @@ const supabase = require("./supabase");
 // El endpoint consume el módulo IA ÚNICAMENTE por su interfaz pública
 // (docs/architecture.md §3, R10) — nunca importa los archivos internos del
 // módulo IA (gemini, contexto, validacion) ni el SDK de Gemini directamente.
-const { construirContexto, llamarGemini, validarRespuesta } = require("./ia");
+const {
+  construirContexto,
+  llamarGemini,
+  validarRespuesta,
+  validarRespuestaAjuste,
+  ANEXO_MODO_AJUSTE,
+} = require("./ia");
 
 function crearError(mensaje, status, code) {
   const error = new Error(mensaje);
@@ -101,8 +107,100 @@ async function generarHorario(usuario_id) {
   return filas; // R2
 }
 
+// ---------------------------------------------------------------------------
+// Feature 12 — POST /api/horarios/ajustar (reorganización incremental)
+// ---------------------------------------------------------------------------
+
+// Normaliza una hora de Postgres (HH:MM:SS) al formato HH:MM del contrato.
+function normalizarHora(hora) {
+  return typeof hora === "string" ? hora.slice(0, 5) : hora;
+}
+
+// R3 — Bloques actuales del usuario, con propiedad verificada vía el join
+// tareas → cursos → usuario (`bloques_horario` no tiene columna usuario_id y
+// el cliente usa service role key, que bypassa RLS: el filtro explícito por
+// usuario es la protección real). Devuelve horas normalizadas HH:MM y sin el
+// join auxiliar.
+async function obtenerHorarioVigente(usuario_id) {
+  const { data, error } = await supabase
+    .from("bloques_horario")
+    .select(
+      "id, tarea_id, fecha, hora_inicio, hora_fin, generado_por_ia, tareas!inner(cursos!inner(usuario_id))"
+    )
+    .eq("tareas.cursos.usuario_id", usuario_id);
+  if (error) {
+    throw crearError("No se pudo leer el horario vigente", 500, "DB_ERROR");
+  }
+  return (data ?? []).map(({ tareas, hora_inicio, hora_fin, ...bloque }) => ({
+    ...bloque,
+    hora_inicio: normalizarHora(hora_inicio),
+    hora_fin: normalizarHora(hora_fin),
+  }));
+}
+
+// R9 (DECISIÓN B) — Todo id de `bloques_eliminados` debe corresponder a un
+// bloque del horario vigente del usuario. Un id alucinado (o de otro usuario)
+// → 422 IA_INVALID_RESPONSE, sin eliminar ni persistir. Función pura.
+function verificarEliminados(eliminados, horarioVigente) {
+  const idsValidos = new Set(horarioVigente.map((b) => String(b.id)));
+  if (eliminados.some((id) => !idsValidos.has(String(id)))) {
+    throw crearError("Respuesta de IA inválida", 422, "IA_INVALID_RESPONSE");
+  }
+}
+
+// R11 — Borra ÚNICAMENTE los ids indicados (incrementalidad — RF-06): sin
+// filtros amplios (nada de eq("generado_por_ia", ...) ni in("tarea_id", ...)).
+// La propiedad ya quedó garantizada por verificarEliminados contra el horario
+// vigente del usuario.
+async function eliminarBloques(ids) {
+  if (ids.length === 0) return;
+  const { error } = await supabase.from("bloques_horario").delete().in("id", ids);
+  if (error) {
+    throw crearError("No se pudieron eliminar los bloques", 500, "DB_ERROR");
+  }
+}
+
+// R3, R4, R8–R12 — Orquesta el ajuste conversacional. El `usuario_id` proviene
+// siempre del token (lo pasa el controller), nunca del body. La
+// `instruccion_usuario` viaja ÚNICAMENTE dentro del contexto (`contents`) y el
+// anexo del modo ajuste va como prompt adicional de sistema (ADR-002 — defensa
+// contra prompt injection). `llamarGemini` NO se envuelve en try/catch aquí:
+// su throw (Error plano, sin `code`) se traduce a 503 IA_UNAVAILABLE en el
+// controller (R13). Ninguna escritura ni borrado ocurre antes de que TODA la
+// validación (schema + disponibilidad + solapes + propiedad) haya pasado (R10).
+async function ajustarHorario(usuario_id, instruccion) {
+  const contextoBase = await construirContexto(usuario_id); // R3
+  const horarioVigente = await obtenerHorarioVigente(usuario_id); // R3
+  const contextoAjuste = {
+    ...contextoBase,
+    horario_vigente: horarioVigente,
+    instruccion_usuario: instruccion, // R3 (ADR-002: viaja en contents)
+  };
+
+  const raw = await llamarGemini(contextoAjuste, ANEXO_MODO_AJUSTE); // R4 (throw → controller: 503)
+
+  // Igual que en generarHorario: validarRespuestaAjuste lanza Errores PLANOS
+  // sin status/code; se les adjunta aquí el 422 IA_INVALID_RESPONSE (R10).
+  let resultado;
+  try {
+    resultado = validarRespuestaAjuste(raw, contextoAjuste.disponibilidad, horarioVigente); // R5–R7
+  } catch (err) {
+    throw crearError("Respuesta de IA inválida", 422, "IA_INVALID_RESPONSE"); // R10
+  }
+
+  verificarPropiedad(resultado.creados, contextoBase.tareas_pendientes); // R8 (helper feature 11)
+  verificarEliminados(resultado.eliminados, horarioVigente); // R9
+
+  await eliminarBloques(resultado.eliminados); // R11
+  const filas = await insertarBloques(resultado.creados.map(aFila)); // R11
+
+  return { bloques_eliminados: resultado.eliminados, bloques_creados: filas }; // R12
+}
+
 module.exports = {
   generarHorario,
   verificarPropiedad,
   aFila,
+  ajustarHorario,
+  verificarEliminados,
 };
