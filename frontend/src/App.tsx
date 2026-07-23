@@ -42,8 +42,8 @@ function AppShell() {
   // mínimo — no se introduce routing nuevo.
   return (
     <main className="flex min-h-screen flex-col items-center gap-6 bg-white p-6 text-center">
-      <h1 className="text-3xl font-semibold text-slate-900">StudyFlow</h1>
-      <p className="text-slate-600">Hola, {usuario?.nombre || usuario?.correo}.</p>
+      <h1 className="text-3xl font-semibold text-on-surface">StudyFlow</h1>
+      <p className="text-on-surface-variant">Hola, {usuario?.nombre || usuario?.correo}.</p>
       <button type="button" onClick={() => void logout()}>
         Cerrar sesión
       </button>
