@@ -1,1 +1,136 @@
 @import "tailwindcss";
+
+@import "@fontsource/hanken-grotesk/600.css";
+@import "@fontsource/hanken-grotesk/700.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/600.css";
+
+/* Design system "Cognitive Flow" — Stitch project "Modern AI Calendar".
+   Single source of truth for design values (ADR-005). Components must not
+   write literal hex codes, font sizes, radii or spacing values.
+
+   `static` keeps every token emitted as a CSS variable even when no utility
+   class references it yet. Without it Tailwind tree-shakes unused tokens and
+   hand-written `var(--color-*)` rules resolve to nothing. */
+@theme static {
+  /* Font families */
+  --font-display: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Type scale */
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 56px;
+  --text-display-lg--font-weight: 700;
+  --text-display-lg--letter-spacing: -0.02em;
+
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--font-weight: 600;
+  --text-headline-lg--letter-spacing: -0.01em;
+
+  --text-headline-lg-mobile: 28px;
+  --text-headline-lg-mobile--line-height: 36px;
+  --text-headline-lg-mobile--font-weight: 600;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 600;
+
+  --text-headline-sm: 20px;
+  --text-headline-sm--line-height: 28px;
+  --text-headline-sm--font-weight: 600;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-body-sm--font-weight: 400;
+
+  --text-label-md: 12px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--font-weight: 600;
+  --text-label-md--letter-spacing: 0.05em;
+
+  /* Primary — carries text and interactive states. Contrast against white is
+     6.69:1 and against surface 6.34:1, both above the WCAG AA threshold. */
+  --color-primary: #0058be;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #2170e4;
+  --color-on-primary-container: #fefcff;
+  --color-inverse-primary: #adc6ff;
+  --color-primary-fixed: #d8e2ff;
+  --color-primary-fixed-dim: #adc6ff;
+  --color-on-primary-fixed: #001a42;
+  --color-on-primary-fixed-variant: #004395;
+
+  /* Secondary — completion states and growth metrics */
+  --color-secondary: #006c49;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #6cf8bb;
+  --color-on-secondary-container: #00714d;
+  --color-secondary-fixed: #6ffbbe;
+  --color-secondary-fixed-dim: #4edea3;
+  --color-on-secondary-fixed: #002113;
+  --color-on-secondary-fixed-variant: #005236;
+
+  /* Tertiary — urgent deadlines and AI suggestions needing attention */
+  --color-tertiary: #994100;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #c05400;
+  --color-on-tertiary-container: #fffbff;
+  --color-tertiary-fixed: #ffdbca;
+  --color-tertiary-fixed-dim: #ffb690;
+  --color-on-tertiary-fixed: #341100;
+  --color-on-tertiary-fixed-variant: #783200;
+
+  /* Error */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* Surfaces */
+  --color-background: #f7f9fb;
+  --color-on-background: #191c1e;
+  --color-surface: #f7f9fb;
+  --color-on-surface: #191c1e;
+  --color-on-surface-variant: #424754;
+  --color-surface-variant: #e0e3e5;
+  --color-surface-dim: #d8dadc;
+  --color-surface-bright: #f7f9fb;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f2f4f6;
+  --color-surface-container: #eceef0;
+  --color-surface-container-high: #e6e8ea;
+  --color-surface-container-highest: #e0e3e5;
+  --color-surface-tint: #005ac2;
+  --color-inverse-surface: #2d3133;
+  --color-inverse-on-surface: #eff1f3;
+
+  /* Outlines */
+  --color-outline: #727785;
+  --color-outline-variant: #c2c6d6;
+
+  /* Spacing — 4px root unit */
+  --spacing: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 40px;
+  --spacing-xl: 64px;
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 48px;
+
+  /* Radii */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+}
