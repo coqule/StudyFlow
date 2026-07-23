@@ -19,6 +19,61 @@
 
 ---
 
+## ADR-004 — Resiliencia ante inestabilidad de Gemini: timeout explícito + retry con backoff (recomendación para el manejo de errores de IA)
+
+- **Fecha:** 2026-07-23
+- **Estado:** Recomendada — pendiente de implementación en la feature de
+  manejo de errores de IA (endpoint(s) `/api/horarios/*`, semana S2)
+- **Alcance:** `backend/src/services/ia/gemini.js` (única superficie de
+  cambio prevista, RNF-05); afecta el comportamiento observable de
+  `POST /api/horarios/generar` y `POST /api/horarios/ajustar`.
+
+**Contexto.** Durante la prueba local E2E del endpoint `/api/horarios/ajustar`
+(2026-07-23, Gemini real) se observó un episodio sostenido de inestabilidad
+del modelo `gemini-3.5-flash` (ADR-003): la API devolvió repetidamente
+`503 UNAVAILABLE` ("high demand"). Datos empíricos del episodio:
+
+- Fallos **intermitentes**: en la misma ventana, algunas llamadas idénticas
+  pasaban y otras fallaban; un retry simple habría salvado varios intentos.
+- Fallos **lentos**: la mayoría de rechazos fueron inmediatos (1–4 s), pero
+  hubo llamadas que colgaron **42 s, 72 s y hasta 108 s antes de fallar** —
+  el usuario espera minutos para recibir un error.
+- La degradación graceful ya implementada respondió correctamente en todos
+  los casos (503 `IA_UNAVAILABLE`, sin persistir nada, resto de la API viva),
+  pero no acota el tiempo de espera ni recupera fallos transitorios.
+- Antecedente relacionado: la latencia p90 ya excede el objetivo RNF-01
+  (< 8 s) — una corrida real de `/generar` midió ~15 s.
+
+**Recomendación.**
+1. **Timeout explícito en `llamarGemini`** (~10 s, configurable por env var):
+   abortar la llamada y lanzar, para que el 503 al usuario llegue rápido y el
+   peor caso quede acotado. Es la mejora de mejor relación costo/beneficio.
+2. **Retry con backoff dentro del módulo IA**: 1–2 reintentos SOLO ante
+   errores transitorios (503/UNAVAILABLE), con espera corta (p. ej. 1–2 s).
+   Combinado con el timeout, el peor caso total queda en el orden de
+   ~20–25 s en lugar de minutos.
+
+Ambas piezas viven dentro de `gemini.js`: ningún controller, ruta ni test de
+endpoints necesita cambiar (invariante de sustitución del módulo IA,
+`docs/architecture.md §3`).
+
+**Consecuencias.**
+- El retry suma latencia al camino feliz solo cuando hay fallos transitorios;
+  el timeout garantiza que nunca se supere el tope elegido.
+- Los tests del módulo IA deberán cubrir: timeout vence → throw; 503 seguido
+  de éxito → recupera; 503 persistente → throw tras agotar reintentos.
+- El contrato HTTP no cambia (`503 IA_UNAVAILABLE` sigue siendo la respuesta
+  final ante fallo definitivo).
+
+**Alternativas descartadas (por ahora).**
+- **Modelo de fallback** (p. ej. `flash-lite` cuando el primario da 503):
+  mantiene servicio en picos largos, pero degrada calidad y obliga a revisar
+  ADR-003. Reconsiderar si los episodios se vuelven frecuentes.
+- **Generación asíncrona** (202 + polling): resuelve la espera pero complica
+  contrato y frontend; sobredimensionada para el MVP.
+
+---
+
 ## ADR-003 — Modelo de Gemini: `gemini-3.5-flash` (sustituye a `gemini-2.0-flash`)
 
 - **Fecha:** 2026-07-13
