@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { TareaForm } from "./TareaForm";
@@ -34,10 +34,13 @@ describe("<TareaForm />", () => {
     const user = userEvent.setup();
     render(<TareaForm crear={mockCrear} cursos={cursosDePrueba} />);
 
-    await user.type(screen.getByLabelText("Título"), "Examen parcial");
+    await user.type(screen.getByLabelText("Título de la tarea"), "Examen parcial");
     await user.selectOptions(screen.getByLabelText("Tipo"), "examen");
     await user.type(screen.getByLabelText("Fecha límite"), fechaFutura());
-    await user.selectOptions(screen.getByLabelText("Prioridad"), "5");
+    // La prioridad es un slider (range). jsdom no traslada las flechas del
+    // teclado a un input range, así que se fija el valor con fireEvent.change,
+    // que es como testing-library recomienda accionar un range.
+    fireEvent.change(screen.getByRole("slider"), { target: { value: "5" } });
     await user.click(screen.getByText("Guardar"));
 
     expect(mockCrear).toHaveBeenCalledWith({
@@ -50,11 +53,19 @@ describe("<TareaForm />", () => {
     });
   });
 
+  it("muestra la prioridad como slider con su valor a la vista (default 3)", () => {
+    render(<TareaForm crear={mockCrear} cursos={cursosDePrueba} />);
+
+    const slider = screen.getByRole("slider");
+    expect(slider).toHaveValue("3");
+    expect(screen.getByText("Prioridad:").parentElement).toHaveTextContent("Prioridad: 3");
+  });
+
   it("muestra un error y no llama a crear() si la fecha límite no es futura (R15)", async () => {
     const user = userEvent.setup();
     render(<TareaForm crear={mockCrear} cursos={cursosDePrueba} />);
 
-    await user.type(screen.getByLabelText("Título"), "Examen parcial");
+    await user.type(screen.getByLabelText("Título de la tarea"), "Examen parcial");
     await user.type(screen.getByLabelText("Fecha límite"), fechaPasada());
     await user.click(screen.getByText("Guardar"));
 
