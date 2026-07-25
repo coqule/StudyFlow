@@ -59,6 +59,20 @@ describe("<DisponibilidadGrid />", () => {
     expect(within(martes).getByText("Sin bloques")).toBeInTheDocument();
   });
 
+  it("muestra el eje horario completo, de 00:00 a 24:00 (R15)", () => {
+    render(
+      <DisponibilidadGrid
+        bloques={[]}
+        actualizar={jest.fn()}
+        eliminar={jest.fn()}
+        error={null}
+      />
+    );
+
+    expect(screen.getAllByText("00:00")).not.toHaveLength(0);
+    expect(screen.getAllByText("24:00")).not.toHaveLength(0);
+  });
+
   it("muestra botones 'Editar' y 'Eliminar' por cada bloque (R21, R28)", () => {
     render(
       <DisponibilidadGrid

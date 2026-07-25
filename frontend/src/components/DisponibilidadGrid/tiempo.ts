@@ -18,33 +18,9 @@ export interface Ventana {
   fin: number;
 }
 
-// Rango horario visible de la grilla, calculado a partir de los bloques para
-// que ninguno quede recortado. Sin bloques cae a una jornada 8:00–20:00.
-// Se redondea a horas enteras y se garantiza un mínimo de 6 h para que un
-// único bloque corto no ocupe toda la altura.
-export function calcularVentana(bloques: Disponibilidad[]): Ventana {
-  if (bloques.length === 0) {
-    return { inicio: 8 * 60, fin: 20 * 60 };
-  }
-
-  let min = Infinity;
-  let max = -Infinity;
-  for (const b of bloques) {
-    min = Math.min(min, aMinutos(b.hora_inicio));
-    max = Math.max(max, aMinutos(b.hora_fin));
-  }
-
-  let inicio = Math.floor(min / 60) * 60;
-  let fin = Math.ceil(max / 60) * 60;
-
-  const MIN_SPAN = 6 * 60;
-  if (fin - inicio < MIN_SPAN) {
-    fin = Math.min(24 * 60, inicio + MIN_SPAN);
-    inicio = Math.max(0, fin - MIN_SPAN);
-  }
-
-  return { inicio, fin };
-}
+// La grilla siempre muestra el día completo, de 00:00 a 24:00 (sin recortar
+// a un rango dinámico según los bloques existentes).
+export const VENTANA_DIA: Ventana = { inicio: 0, fin: 24 * 60 };
 
 // Posición vertical de un bloque como porcentajes top/height dentro de la
 // ventana, listos para un elemento posicionado en absoluto.

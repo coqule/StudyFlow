@@ -109,7 +109,7 @@ export function BloqueItem({ bloque, posicion, actualizar, eliminar, error }: Bl
         className="absolute inset-x-0 top-0 z-10 rounded border border-outline-variant bg-surface-container-lowest p-sm shadow-sm"
       >
         <form onSubmit={(event) => void handleGuardar(event)} className="flex flex-col gap-xs">
-          <div className="flex flex-col gap-xs">
+          <div className="flex max-w-[220px] flex-col gap-xs">
             <label htmlFor={`bloque-${bloque.id}-dia`} className={ETIQUETA}>
               Día
             </label>

@@ -55,7 +55,7 @@ export function DisponibilidadForm({ crear, error }: DisponibilidadFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-sm">
-      <div className="flex flex-col gap-xs">
+      <div className="flex max-w-[220px] flex-col gap-xs">
         <label htmlFor="disp-dia" className={ETIQUETA}>
           Día
         </label>
