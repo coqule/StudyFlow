@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 
 import type { Curso, NuevaTarea } from "../../types";
 import { BOTON_PRIMARIO, CAMPO, ERROR, ETIQUETA } from "../ui/clases";
+import { EscalaCirculos } from "../ui/EscalaCirculos";
 
 const TIPOS = ["tarea", "examen", "proyecto"] as const;
 
@@ -151,19 +152,12 @@ export function TareaForm({ crear, cursos }: TareaFormProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-xs pt-xs">
-        <label htmlFor="tarea-prioridad" className={ETIQUETA}>
-          Prioridad: <span className="text-on-surface">{prioridad}</span>
-        </label>
-        <input
-          id="tarea-prioridad"
-          type="range"
-          min={1}
-          max={5}
-          step={1}
-          value={prioridad}
-          onChange={(event) => setPrioridad(Number(event.target.value))}
-          className="h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-container-high accent-primary"
+      <div className="pt-xs">
+        <EscalaCirculos
+          nombre="tarea-prioridad"
+          etiqueta="Prioridad (1-5)"
+          valor={prioridad}
+          onCambio={setPrioridad}
         />
       </div>
 

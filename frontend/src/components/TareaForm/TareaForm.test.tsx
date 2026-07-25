@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { TareaForm } from "./TareaForm";
@@ -37,10 +37,9 @@ describe("<TareaForm />", () => {
     await user.type(screen.getByLabelText("Título de la tarea"), "Examen parcial");
     await user.selectOptions(screen.getByLabelText("Tipo"), "examen");
     await user.type(screen.getByLabelText("Fecha límite"), fechaFutura());
-    // La prioridad es un slider (range). jsdom no traslada las flechas del
-    // teclado a un input range, así que se fija el valor con fireEvent.change,
-    // que es como testing-library recomienda accionar un range.
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "5" } });
+    // La prioridad es una escala de círculos (radios), igual que la dificultad
+    // de cursos: se elige el 5 por su nombre accesible.
+    await user.click(screen.getByRole("radio", { name: "5" }));
     await user.click(screen.getByText("Guardar"));
 
     expect(mockCrear).toHaveBeenCalledWith({
@@ -53,12 +52,12 @@ describe("<TareaForm />", () => {
     });
   });
 
-  it("muestra la prioridad como slider con su valor a la vista (default 3)", () => {
+  it("muestra la prioridad como escala de círculos accesibles 1 a 5", () => {
     render(<TareaForm crear={mockCrear} cursos={cursosDePrueba} />);
 
-    const slider = screen.getByRole("slider");
-    expect(slider).toHaveValue("3");
-    expect(screen.getByText("Prioridad:").parentElement).toHaveTextContent("Prioridad: 3");
+    for (const valor of ["1", "2", "3", "4", "5"]) {
+      expect(screen.getByRole("radio", { name: valor })).toBeInTheDocument();
+    }
   });
 
   it("muestra un error y no llama a crear() si la fecha límite no es futura (R15)", async () => {

@@ -3,8 +3,7 @@ import type { FormEvent } from "react";
 
 import type { NuevoCurso } from "../../types";
 import { BOTON_PRIMARIO, CAMPO, ERROR, ETIQUETA } from "../ui/clases";
-
-const DIFICULTADES = [1, 2, 3, 4, 5];
+import { EscalaCirculos } from "../ui/EscalaCirculos";
 
 // Estos hex son DATOS, no estilo: viajan al backend y se guardan en la
 // columna `color` del curso. Por eso son literales y no tokens — un
@@ -73,28 +72,12 @@ export function CursoForm({ crear }: CursoFormProps) {
       </div>
 
       <div className="flex flex-col gap-md pt-xs sm:flex-row sm:items-start sm:justify-between">
-        <fieldset className="flex flex-col gap-xs border-0 p-0">
-          <legend className={ETIQUETA}>Dificultad (1-5)</legend>
-          <div className="flex gap-xs">
-            {DIFICULTADES.map((valor) => (
-              <label key={valor} className="cursor-pointer">
-                <input
-                  type="radio"
-                  name="curso-dificultad"
-                  value={valor}
-                  checked={dificultad === valor}
-                  onChange={() => setDificultad(valor)}
-                  className="peer sr-only"
-                />
-                {/* El número va dentro del círculo, así la etiqueta visible
-                    y el nombre accesible son el mismo texto. */}
-                <span className="flex size-8 items-center justify-center rounded-full border-2 border-outline text-body-sm text-on-surface-variant transition-colors peer-hover:border-primary peer-checked:border-primary peer-checked:bg-primary peer-checked:text-on-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary/40">
-                  {valor}
-                </span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <EscalaCirculos
+          nombre="curso-dificultad"
+          etiqueta="Dificultad (1-5)"
+          valor={dificultad}
+          onCambio={setDificultad}
+        />
 
         <fieldset className="flex flex-col gap-xs border-0 p-0">
           <legend className={ETIQUETA}>Color</legend>
