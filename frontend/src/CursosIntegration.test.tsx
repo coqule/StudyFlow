@@ -85,8 +85,13 @@ describe("Integración CursoForm -> CursoList (R30)", () => {
 
     expect(screen.getByText("Aún no tienes cursos.")).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText("Nombre"), "Cálculo II");
-    await user.selectOptions(screen.getByLabelText("Dificultad"), "5");
+    await user.type(screen.getByLabelText("Nombre del curso"), "Cálculo II");
+    // `App` monta dos escalas de círculos (dificultad de curso y prioridad de
+    // tarea), ambas con un radio "5"; se acota al grupo de dificultad por su
+    // atributo name para no ambigüar la consulta.
+    const radios5 = screen.getAllByRole("radio", { name: "5" });
+    const dificultad5 = radios5.find((r) => r.getAttribute("name") === "curso-dificultad");
+    await user.click(dificultad5!);
     // `App` ahora también monta `TareaForm` (tareas_crud), que tiene su
     // propio botón "Guardar" — se toma el primero (el de `CursoForm`,
     // montado antes en el árbol) para no ambigüar la consulta.

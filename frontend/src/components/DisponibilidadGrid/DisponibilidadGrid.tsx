@@ -38,9 +38,9 @@ export function DisponibilidadGrid({
 
         return (
           <section key={dia} className="flex flex-col gap-2" aria-label={dia}>
-            <h3 className="text-sm font-semibold capitalize text-slate-900">{dia}</h3>
+            <h3 className="text-sm font-semibold capitalize text-on-surface">{dia}</h3>
             {bloquesDelDia.length === 0 ? (
-              <p className="text-xs text-slate-500">Sin bloques</p>
+              <p className="text-xs text-on-surface-variant">Sin bloques</p>
             ) : (
               <ul className="flex flex-col gap-2">
                 {bloquesDelDia.map((bloque) => (

@@ -57,3 +57,6 @@ backend/AGENT.md
 frontend/AGENT.md
 
 .playwright-mcp/
+
+# Herramientas locales
+.atl/

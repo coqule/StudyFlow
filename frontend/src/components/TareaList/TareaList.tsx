@@ -19,11 +19,11 @@ interface TareaListProps {
 // `TareaListItem` (R18, R26).
 export function TareaList({ tareas, cursos, actualizar, eliminar, error }: TareaListProps) {
   if (tareas.length === 0) {
-    return <p>Aún no tienes tareas.</p>;
+    return <p className="text-body-sm text-on-surface-variant">Aún no tienes tareas.</p>;
   }
 
   return (
-    <ul className="flex w-full max-w-sm flex-col gap-2">
+    <ul className="flex flex-col gap-xs">
       {tareas.map((tarea) => (
         <TareaListItem
           key={tarea.id}

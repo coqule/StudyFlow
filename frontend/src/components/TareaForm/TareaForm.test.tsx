@@ -34,10 +34,12 @@ describe("<TareaForm />", () => {
     const user = userEvent.setup();
     render(<TareaForm crear={mockCrear} cursos={cursosDePrueba} />);
 
-    await user.type(screen.getByLabelText("Título"), "Examen parcial");
+    await user.type(screen.getByLabelText("Título de la tarea"), "Examen parcial");
     await user.selectOptions(screen.getByLabelText("Tipo"), "examen");
     await user.type(screen.getByLabelText("Fecha límite"), fechaFutura());
-    await user.selectOptions(screen.getByLabelText("Prioridad"), "5");
+    // La prioridad es una escala de círculos (radios), igual que la dificultad
+    // de cursos: se elige el 5 por su nombre accesible.
+    await user.click(screen.getByRole("radio", { name: "5" }));
     await user.click(screen.getByText("Guardar"));
 
     expect(mockCrear).toHaveBeenCalledWith({
@@ -50,11 +52,19 @@ describe("<TareaForm />", () => {
     });
   });
 
+  it("muestra la prioridad como escala de círculos accesibles 1 a 5", () => {
+    render(<TareaForm crear={mockCrear} cursos={cursosDePrueba} />);
+
+    for (const valor of ["1", "2", "3", "4", "5"]) {
+      expect(screen.getByRole("radio", { name: valor })).toBeInTheDocument();
+    }
+  });
+
   it("muestra un error y no llama a crear() si la fecha límite no es futura (R15)", async () => {
     const user = userEvent.setup();
     render(<TareaForm crear={mockCrear} cursos={cursosDePrueba} />);
 
-    await user.type(screen.getByLabelText("Título"), "Examen parcial");
+    await user.type(screen.getByLabelText("Título de la tarea"), "Examen parcial");
     await user.type(screen.getByLabelText("Fecha límite"), fechaPasada());
     await user.click(screen.getByText("Guardar"));
 
