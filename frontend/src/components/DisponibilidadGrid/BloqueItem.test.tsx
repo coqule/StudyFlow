@@ -12,6 +12,19 @@ const bloqueDePrueba: Disponibilidad = {
   hora_fin: "10:00",
 };
 
+// La hora se elige con dos <select> (hora 00-23, minutos), no un input time:
+// se ajustan por su nombre accesible "<etiqueta>, hora" / ", minutos". El
+// value de cada option es el número sin ceros a la izquierda.
+async function fijarHora(
+  user: ReturnType<typeof userEvent.setup>,
+  etiqueta: string,
+  hhmm: string
+) {
+  const [h, m] = hhmm.split(":");
+  await user.selectOptions(screen.getByLabelText(`${etiqueta}, hora`), String(Number(h)));
+  await user.selectOptions(screen.getByLabelText(`${etiqueta}, minutos`), String(Number(m)));
+}
+
 // MOCK: backend desactivado en este test (docs/conventions.md §8) —
 // `actualizar`/`eliminar` llegan mockeadas por props, BloqueItem nunca llama
 // a disponibilidadApi/fetch real. `window.confirm` también se mockea.
@@ -38,8 +51,10 @@ describe("<BloqueItem />", () => {
     await user.click(screen.getByText("Editar"));
 
     expect(screen.getByLabelText("Día")).toHaveValue("lunes");
-    expect(screen.getByLabelText("Hora inicio")).toHaveValue("08:00");
-    expect(screen.getByLabelText("Hora fin")).toHaveValue("10:00");
+    expect(screen.getByLabelText("Hora inicio, hora")).toHaveValue("8");
+    expect(screen.getByLabelText("Hora inicio, minutos")).toHaveValue("0");
+    expect(screen.getByLabelText("Hora fin, hora")).toHaveValue("10");
+    expect(screen.getByLabelText("Hora fin, minutos")).toHaveValue("0");
   });
 
   it("edición válida invoca actualizar() con los datos correctos y sale de modo edición (R23, R25)", async () => {
@@ -55,10 +70,8 @@ describe("<BloqueItem />", () => {
     );
 
     await user.click(screen.getByText("Editar"));
-    await user.clear(screen.getByLabelText("Hora inicio"));
-    await user.type(screen.getByLabelText("Hora inicio"), "14:00");
-    await user.clear(screen.getByLabelText("Hora fin"));
-    await user.type(screen.getByLabelText("Hora fin"), "16:00");
+    await fijarHora(user, "Hora inicio", "14:00");
+    await fijarHora(user, "Hora fin", "16:00");
     await user.click(screen.getByText("Guardar"));
 
     expect(mockActualizar).toHaveBeenCalledWith("1", {
@@ -66,7 +79,7 @@ describe("<BloqueItem />", () => {
       hora_inicio: "14:00",
       hora_fin: "16:00",
     });
-    expect(screen.queryByLabelText("Hora inicio")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Hora inicio, hora")).not.toBeInTheDocument();
     expect(screen.getByText("Editar")).toBeInTheDocument();
   });
 
@@ -83,8 +96,7 @@ describe("<BloqueItem />", () => {
     );
 
     await user.click(screen.getByText("Editar"));
-    await user.clear(screen.getByLabelText("Hora fin"));
-    await user.type(screen.getByLabelText("Hora fin"), "07:00");
+    await fijarHora(user, "Hora fin", "07:00");
     await user.click(screen.getByText("Guardar"));
 
     expect(screen.getByRole("alert")).toHaveTextContent(/hora de fin/i);
@@ -107,7 +119,7 @@ describe("<BloqueItem />", () => {
     await user.click(screen.getByText("Guardar"));
 
     expect(screen.getByRole("alert")).toHaveTextContent("El bloque se solapa con otro del mismo día");
-    expect(screen.getByLabelText("Hora inicio")).toBeInTheDocument();
+    expect(screen.getByLabelText("Hora inicio, hora")).toBeInTheDocument();
   });
 
   it("'Cancelar' descarta los cambios locales y no invoca actualizar() (R27)", async () => {
@@ -123,12 +135,11 @@ describe("<BloqueItem />", () => {
     );
 
     await user.click(screen.getByText("Editar"));
-    await user.clear(screen.getByLabelText("Hora inicio"));
-    await user.type(screen.getByLabelText("Hora inicio"), "22:00");
+    await fijarHora(user, "Hora inicio", "22:00");
     await user.click(screen.getByText("Cancelar"));
 
     expect(mockActualizar).not.toHaveBeenCalled();
-    expect(screen.queryByLabelText("Hora inicio")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Hora inicio, hora")).not.toBeInTheDocument();
     expect(screen.getByText("08:00–10:00")).toBeInTheDocument();
   });
 

@@ -3,6 +3,7 @@ import type { CSSProperties, FormEvent } from "react";
 
 import type { Disponibilidad, NuevaDisponibilidad } from "../../types";
 import { BOTON_PRIMARIO, BOTON_SECUNDARIO, CAMPO, ERROR, ETIQUETA } from "../ui/clases";
+import { SelectorHora } from "../ui/SelectorHora";
 import { normalizarHora } from "./tiempo";
 
 const DIAS: Disponibilidad["dia_semana"][] = [
@@ -127,30 +128,8 @@ export function BloqueItem({ bloque, posicion, actualizar, eliminar, error }: Bl
               ))}
             </select>
           </div>
-          <div className="flex flex-col gap-xs">
-            <label htmlFor={`bloque-${bloque.id}-inicio`} className={ETIQUETA}>
-              Hora inicio
-            </label>
-            <input
-              id={`bloque-${bloque.id}-inicio`}
-              type="time"
-              value={horaInicio}
-              onChange={(event) => setHoraInicio(event.target.value)}
-              className={CAMPO}
-            />
-          </div>
-          <div className="flex flex-col gap-xs">
-            <label htmlFor={`bloque-${bloque.id}-fin`} className={ETIQUETA}>
-              Hora fin
-            </label>
-            <input
-              id={`bloque-${bloque.id}-fin`}
-              type="time"
-              value={horaFin}
-              onChange={(event) => setHoraFin(event.target.value)}
-              className={CAMPO}
-            />
-          </div>
+          <SelectorHora etiqueta="Hora inicio" value={horaInicio} onChange={setHoraInicio} />
+          <SelectorHora etiqueta="Hora fin" value={horaFin} onChange={setHoraFin} />
           {errorFila && (
             <p role="alert" className={ERROR}>
               {errorFila}

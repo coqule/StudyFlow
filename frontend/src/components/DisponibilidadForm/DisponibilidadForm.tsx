@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 
 import type { Disponibilidad, NuevaDisponibilidad } from "../../types";
 import { BOTON_PRIMARIO, CAMPO, ERROR, ETIQUETA } from "../ui/clases";
+import { SelectorHora } from "../ui/SelectorHora";
 
 // Los siete días en orden L–D — coinciden con el tipo
 // `Disponibilidad.dia_semana` (sin tilde). El `<select>` garantiza un
@@ -74,29 +75,11 @@ export function DisponibilidadForm({ crear, error }: DisponibilidadFormProps) {
         </select>
       </div>
       <div className="flex flex-col gap-sm sm:flex-row">
-        <div className="flex flex-1 flex-col gap-xs">
-          <label htmlFor="disp-hora-inicio" className={ETIQUETA}>
-            Hora inicio
-          </label>
-          <input
-            id="disp-hora-inicio"
-            type="time"
-            value={horaInicio}
-            onChange={(event) => setHoraInicio(event.target.value)}
-            className={CAMPO}
-          />
+        <div className="flex-1">
+          <SelectorHora etiqueta="Hora inicio" value={horaInicio} onChange={setHoraInicio} />
         </div>
-        <div className="flex flex-1 flex-col gap-xs">
-          <label htmlFor="disp-hora-fin" className={ETIQUETA}>
-            Hora fin
-          </label>
-          <input
-            id="disp-hora-fin"
-            type="time"
-            value={horaFin}
-            onChange={(event) => setHoraFin(event.target.value)}
-            className={CAMPO}
-          />
+        <div className="flex-1">
+          <SelectorHora etiqueta="Hora fin" value={horaFin} onChange={setHoraFin} />
         </div>
       </div>
       {errorLocal && (
