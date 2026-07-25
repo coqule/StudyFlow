@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { PanelRegistroPage } from "./pages/PanelRegistroPage";
 import { DisponibilidadPage } from "./pages/DisponibilidadPage";
-import { AppLayout, type Destino } from "./components/ui/AppLayout";
+import { AppLayout } from "./components/ui/AppLayout";
 import { CursoForm } from "./components/CursoForm/CursoForm";
 import { CursoList } from "./components/CursoList/CursoList";
 import { TareaForm } from "./components/TareaForm/TareaForm";
@@ -25,10 +26,9 @@ type Pantalla = "login" | "register";
 function AppShell() {
   const { session, usuario, logout } = useAuth();
   const [pantalla, setPantalla] = useState<Pantalla>("login");
-  // Vista autenticada activa. Sin librería de routing: el mismo patrón de
-  // conmutación por estado que login/registro decide qué página mostrar.
-  const [vista, setVista] = useState<Destino>("registro");
   const [pedirFocoTarea, setPedirFocoTarea] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   const cursos = useCursos();
   const tareas = useTareas();
   // Instancia única de useDisponibilidad() en AppShell (design.md §6): ningún
@@ -36,17 +36,17 @@ function AppShell() {
   // por props para compartir el mismo estado que la grilla visible.
   const disponibilidad = useDisponibilidad();
 
-  // «Nueva tarea» puede pulsarse desde cualquier vista: primero se vuelve al
+  // «Nueva tarea» puede pulsarse desde cualquier vista: primero navega al
   // panel (donde vive el formulario) y recién cuando el campo está montado se
   // le lleva el foco. Por eso el foco espera a un efecto y no se hace en el
   // mismo clic.
   useEffect(() => {
-    if (!pedirFocoTarea || vista !== "registro") return;
+    if (!pedirFocoTarea || location.pathname !== "/cursos") return;
     const campo = document.getElementById("tarea-titulo");
     campo?.scrollIntoView({ behavior: "smooth", block: "center" });
     campo?.focus({ preventScroll: true });
     setPedirFocoTarea(false);
-  }, [pedirFocoTarea, vista]);
+  }, [pedirFocoTarea, location.pathname]);
 
   if (!session) {
     return pantalla === "login" ? (
@@ -59,58 +59,69 @@ function AppShell() {
   return (
     <AppLayout
       nombreUsuario={usuario?.nombre || usuario?.correo || ""}
-      destinoActivo={vista}
-      onNavegar={setVista}
       onCerrarSesion={() => void logout()}
       onNuevaTarea={() => {
-        setVista("registro");
+        navigate("/cursos");
         setPedirFocoTarea(true);
       }}
     >
-      {vista === "registro" ? (
-        <PanelRegistroPage
-          seccionCursos={<CursoForm crear={cursos.crear} />}
-          seccionTareas={<TareaForm crear={tareas.crear} cursos={cursos.data} />}
-          seccionResumen={
-            <div className="flex flex-col gap-md">
-              <CursoList
-                cursos={cursos.data}
-                actualizar={cursos.actualizar}
-                eliminar={cursos.eliminar}
-                error={cursos.error}
-              />
-              <TareaList
-                tareas={tareas.data}
-                cursos={cursos.data}
-                actualizar={tareas.actualizar}
-                eliminar={tareas.eliminar}
-                error={tareas.error}
-              />
-            </div>
+      <Routes>
+        <Route
+          path="/cursos"
+          element={
+            <PanelRegistroPage
+              seccionCursos={<CursoForm crear={cursos.crear} />}
+              seccionTareas={<TareaForm crear={tareas.crear} cursos={cursos.data} />}
+              seccionResumen={
+                <div className="flex flex-col gap-md">
+                  <CursoList
+                    cursos={cursos.data}
+                    actualizar={cursos.actualizar}
+                    eliminar={cursos.eliminar}
+                    error={cursos.error}
+                  />
+                  <TareaList
+                    tareas={tareas.data}
+                    cursos={cursos.data}
+                    actualizar={tareas.actualizar}
+                    eliminar={tareas.eliminar}
+                    error={tareas.error}
+                  />
+                </div>
+              }
+            />
           }
         />
-      ) : (
-        <DisponibilidadPage>
-          <div className="flex flex-col gap-md">
-            <DisponibilidadForm crear={disponibilidad.crear} error={disponibilidad.error} />
-            <DisponibilidadGrid
-              bloques={disponibilidad.data}
-              actualizar={disponibilidad.actualizar}
-              eliminar={disponibilidad.eliminar}
-              error={disponibilidad.error}
-            />
-          </div>
-        </DisponibilidadPage>
-      )}
+        <Route
+          path="/disponibilidad"
+          element={
+            <DisponibilidadPage>
+              <div className="flex flex-col gap-md">
+                <DisponibilidadForm crear={disponibilidad.crear} error={disponibilidad.error} />
+                <DisponibilidadGrid
+                  bloques={disponibilidad.data}
+                  actualizar={disponibilidad.actualizar}
+                  eliminar={disponibilidad.eliminar}
+                  error={disponibilidad.error}
+                />
+              </div>
+            </DisponibilidadPage>
+          }
+        />
+        {/* Cualquier otra ruta (incluida la raíz) cae al panel. */}
+        <Route path="*" element={<Navigate to="/cursos" replace />} />
+      </Routes>
     </AppLayout>
   );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <AppShell />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppShell />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
