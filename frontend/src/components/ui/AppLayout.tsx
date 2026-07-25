@@ -18,6 +18,7 @@ interface ItemNav {
 }
 
 const NAVEGACION: ItemNav[] = [
+  { etiqueta: "Inicio", ruta: "/" },
   { etiqueta: "Calendario", ruta: null },
   { etiqueta: "Cursos", ruta: "/cursos" },
   { etiqueta: "Disponibilidad", ruta: "/disponibilidad" },
@@ -59,6 +60,7 @@ function ItemNavegacion({ etiqueta, ruta, onNavegar }: ItemNavegacionProps) {
     <li>
       <NavLink
         to={ruta}
+        end
         onClick={onNavegar}
         className={({ isActive }) => `${ITEM_BASE} ${isActive ? ITEM_ACTIVO : ITEM_INACTIVO}`}
       >

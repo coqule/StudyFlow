@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { HomePage } from "./pages/HomePage";
 import { PanelRegistroPage } from "./pages/PanelRegistroPage";
 import { DisponibilidadPage } from "./pages/DisponibilidadPage";
 import { AppLayout } from "./components/ui/AppLayout";
@@ -66,6 +67,7 @@ function AppShell() {
       }}
     >
       <Routes>
+        <Route path="/" element={<HomePage />} />
         <Route
           path="/cursos"
           element={
@@ -108,8 +110,8 @@ function AppShell() {
             </DisponibilidadPage>
           }
         />
-        {/* Cualquier otra ruta (incluida la raíz) cae al panel. */}
-        <Route path="*" element={<Navigate to="/cursos" replace />} />
+        {/* Cualquier ruta desconocida cae a la página principal. */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppLayout>
   );

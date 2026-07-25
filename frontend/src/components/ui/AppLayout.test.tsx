@@ -99,6 +99,7 @@ describe("<AppLayout />", () => {
   it("los destinos con página son enlaces a su ruta", () => {
     renderLayout();
 
+    expect(screen.getByRole("link", { name: "Inicio" })).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: "Cursos" })).toHaveAttribute("href", "/cursos");
     expect(screen.getByRole("link", { name: "Disponibilidad" })).toHaveAttribute(
       "href",
