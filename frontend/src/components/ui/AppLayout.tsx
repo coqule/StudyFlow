@@ -3,23 +3,33 @@ import type { ReactNode } from "react";
 
 import { BOTON_SECUNDARIO } from "./clases";
 
+// Destinos de navegación con página propia. Añadir uno aquí y en NAVEGACION,
+// más su rama en AppShell, es todo lo necesario para sumar una sección.
+export type Destino = "registro" | "disponibilidad";
+
 // Armazón de la aplicación: barra lateral, cabecera y área de contenido.
-// Vive aparte de cualquier página concreta para que Calendario, Historial y
-// las demás pantallas futuras se cuelguen del mismo marco sin rehacerlo.
+// Vive aparte de cualquier página concreta para que las pantallas se cuelguen
+// del mismo marco sin rehacerlo.
 //
-// `disponible: false` marca las secciones que el diseño de Stitch contempla
-// pero que todavía no tienen página (ADR-006). Se renderizan como
-// <button disabled>: se ven, comunican hacia dónde va el producto, y ni
-// reciben foco ni responden al clic.
-const NAVEGACION = [
-  { etiqueta: "Calendario", disponible: false },
-  { etiqueta: "Cursos", disponible: true },
-  { etiqueta: "Historial", disponible: false },
+// `destino: null` marca las secciones que el diseño de Stitch contempla pero
+// que todavía no tienen página (ADR-006). Se renderizan como <button disabled>:
+// se ven, comunican hacia dónde va el producto, y ni reciben foco ni responden
+// al clic.
+interface ItemNav {
+  etiqueta: string;
+  destino: Destino | null;
+}
+
+const NAVEGACION: ItemNav[] = [
+  { etiqueta: "Calendario", destino: null },
+  { etiqueta: "Cursos", destino: "registro" },
+  { etiqueta: "Disponibilidad", destino: "disponibilidad" },
+  { etiqueta: "Historial", destino: null },
 ];
 
-const NAVEGACION_PIE = [
-  { etiqueta: "Configuración", disponible: false },
-  { etiqueta: "Ayuda", disponible: false },
+const NAVEGACION_PIE: ItemNav[] = [
+  { etiqueta: "Configuración", destino: null },
+  { etiqueta: "Ayuda", destino: null },
 ];
 
 const ITEM_BASE =
@@ -30,12 +40,13 @@ const ITEM_NO_DISPONIBLE = "text-on-surface-variant/50 cursor-not-allowed";
 
 interface ItemNavegacionProps {
   etiqueta: string;
-  disponible: boolean;
-  activo?: boolean;
+  destino: Destino | null;
+  activo: boolean;
+  onNavegar: (destino: Destino) => void;
 }
 
-function ItemNavegacion({ etiqueta, disponible, activo = false }: ItemNavegacionProps) {
-  if (!disponible) {
+function ItemNavegacion({ etiqueta, destino, activo, onNavegar }: ItemNavegacionProps) {
+  if (destino === null) {
     return (
       <li>
         <button type="button" disabled className={`${ITEM_BASE} ${ITEM_NO_DISPONIBLE}`}>
@@ -48,35 +59,39 @@ function ItemNavegacion({ etiqueta, disponible, activo = false }: ItemNavegacion
 
   return (
     <li>
-      <span
+      <button
+        type="button"
         aria-current={activo ? "page" : undefined}
+        onClick={() => onNavegar(destino)}
         className={`${ITEM_BASE} ${activo ? ITEM_ACTIVO : ITEM_INACTIVO}`}
       >
         {etiqueta}
-      </span>
+      </button>
     </li>
   );
 }
 
 interface ContenidoBarraProps {
-  seccionActiva: string;
+  destinoActivo: Destino;
+  onNavegar: (destino: Destino) => void;
   onNuevaTarea: () => void;
 }
 
 // El contenido de la barra se escribe una sola vez y se monta en dos sitios:
 // la columna fija de escritorio y el cajón de móvil. Duplicarlo garantizaría
 // que las dos versiones se separen en el primer cambio.
-function ContenidoBarra({ seccionActiva, onNuevaTarea }: ContenidoBarraProps) {
+function ContenidoBarra({ destinoActivo, onNavegar, onNuevaTarea }: ContenidoBarraProps) {
   return (
     <>
       <nav aria-label="Secciones">
         <ul className="flex flex-col gap-xs">
-          {NAVEGACION.map(({ etiqueta, disponible }) => (
+          {NAVEGACION.map(({ etiqueta, destino }) => (
             <ItemNavegacion
               key={etiqueta}
               etiqueta={etiqueta}
-              disponible={disponible}
-              activo={etiqueta === seccionActiva}
+              destino={destino}
+              activo={destino !== null && destino === destinoActivo}
+              onNavegar={onNavegar}
             />
           ))}
         </ul>
@@ -92,8 +107,14 @@ function ContenidoBarra({ seccionActiva, onNuevaTarea }: ContenidoBarraProps) {
 
       <div className="border-t border-outline-variant pt-sm">
         <ul className="flex flex-col gap-xs">
-          {NAVEGACION_PIE.map(({ etiqueta, disponible }) => (
-            <ItemNavegacion key={etiqueta} etiqueta={etiqueta} disponible={disponible} />
+          {NAVEGACION_PIE.map(({ etiqueta, destino }) => (
+            <ItemNavegacion
+              key={etiqueta}
+              etiqueta={etiqueta}
+              destino={destino}
+              activo={false}
+              onNavegar={onNavegar}
+            />
           ))}
         </ul>
       </div>
@@ -103,7 +124,8 @@ function ContenidoBarra({ seccionActiva, onNuevaTarea }: ContenidoBarraProps) {
 
 interface AppLayoutProps {
   nombreUsuario: string;
-  seccionActiva: string;
+  destinoActivo: Destino;
+  onNavegar: (destino: Destino) => void;
   onCerrarSesion: () => void;
   onNuevaTarea: () => void;
   children: ReactNode;
@@ -111,7 +133,8 @@ interface AppLayoutProps {
 
 export function AppLayout({
   nombreUsuario,
-  seccionActiva,
+  destinoActivo,
+  onNavegar,
   onCerrarSesion,
   onNuevaTarea,
   children,
@@ -146,11 +169,20 @@ export function AppLayout({
     onNuevaTarea();
   };
 
+  const navegarDesdeCajon = (destino: Destino) => {
+    setMenuAbierto(false);
+    onNavegar(destino);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-outline-variant bg-surface px-sm py-md md:flex">
         <span className="mb-lg px-sm font-display text-headline-sm text-primary">StudyFlow</span>
-        <ContenidoBarra seccionActiva={seccionActiva} onNuevaTarea={onNuevaTarea} />
+        <ContenidoBarra
+          destinoActivo={destinoActivo}
+          onNavegar={onNavegar}
+          onNuevaTarea={onNuevaTarea}
+        />
       </aside>
 
       {menuAbierto && (
@@ -180,7 +212,11 @@ export function AppLayout({
                 Cerrar
               </button>
             </div>
-            <ContenidoBarra seccionActiva={seccionActiva} onNuevaTarea={nuevaTareaDesdeCajon} />
+            <ContenidoBarra
+              destinoActivo={destinoActivo}
+              onNavegar={navegarDesdeCajon}
+              onNuevaTarea={nuevaTareaDesdeCajon}
+            />
           </div>
         </div>
       )}

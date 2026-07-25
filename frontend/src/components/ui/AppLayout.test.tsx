@@ -5,7 +5,8 @@ import { AppLayout } from "./AppLayout";
 
 const props = {
   nombreUsuario: "Ana",
-  seccionActiva: "Cursos",
+  destinoActivo: "registro" as const,
+  onNavegar: jest.fn(),
   onCerrarSesion: jest.fn(),
   onNuevaTarea: jest.fn(),
 };
@@ -19,6 +20,7 @@ function abrirCajon() {
 
 describe("<AppLayout />", () => {
   beforeEach(() => {
+    props.onNavegar.mockClear();
     props.onCerrarSesion.mockClear();
     props.onNuevaTarea.mockClear();
   });
@@ -83,5 +85,30 @@ describe("<AppLayout />", () => {
     for (const etiqueta of ["Calendario", "Historial", "Configuración", "Ayuda"]) {
       expect(screen.getByRole("button", { name: new RegExp(`^${etiqueta}`) })).toBeDisabled();
     }
+  });
+
+  it("navegar a un destino disponible invoca onNavegar con su id", async () => {
+    const user = userEvent.setup();
+    render(<AppLayout {...props}>contenido</AppLayout>);
+
+    // La columna de escritorio siempre está en el DOM; "Disponibilidad" es un
+    // destino disponible (no deshabilitado).
+    await user.click(screen.getByRole("button", { name: "Disponibilidad" }));
+
+    expect(props.onNavegar).toHaveBeenCalledWith("disponibilidad");
+  });
+
+  it("marca el destino activo con aria-current", () => {
+    render(
+      <AppLayout {...props} destinoActivo="disponibilidad">
+        contenido
+      </AppLayout>,
+    );
+
+    expect(screen.getByRole("button", { name: "Disponibilidad" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("button", { name: "Cursos" })).not.toHaveAttribute("aria-current");
   });
 });
