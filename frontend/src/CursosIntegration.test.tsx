@@ -79,6 +79,10 @@ describe("Integración CursoForm -> CursoList (R30)", () => {
   it("un curso creado vía CursoForm aparece en CursoList sin recargar la página", async () => {
     const user = userEvent.setup();
 
+    // La raíz ("/") ahora es HomePage; este test ejercita el panel de
+    // registro, así que navega ahí antes de montar.
+    window.history.pushState({}, "", "/cursos");
+
     await act(async () => {
       render(<App />);
     });

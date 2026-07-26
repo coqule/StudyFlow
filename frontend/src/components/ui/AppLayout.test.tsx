@@ -1,14 +1,24 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 
 import { AppLayout } from "./AppLayout";
 
 const props = {
   nombreUsuario: "Ana",
-  seccionActiva: "Cursos",
   onCerrarSesion: jest.fn(),
   onNuevaTarea: jest.fn(),
 };
+
+// AppLayout usa NavLink, que exige contexto de Router. Se envuelve en
+// MemoryRouter con la ruta inicial indicada.
+function renderLayout(rutaInicial = "/cursos") {
+  return render(
+    <MemoryRouter initialEntries={[rutaInicial]}>
+      <AppLayout {...props}>contenido</AppLayout>
+    </MemoryRouter>,
+  );
+}
 
 // jsdom no evalúa media queries, así que la columna fija de escritorio está
 // siempre en el DOM. Las consultas del cajón se acotan con `within` sobre el
@@ -24,7 +34,7 @@ describe("<AppLayout />", () => {
   });
 
   it("no monta el cajón hasta que se abre el menú", () => {
-    render(<AppLayout {...props}>contenido</AppLayout>);
+    renderLayout();
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Abrir menú" })).toHaveAttribute(
@@ -35,7 +45,7 @@ describe("<AppLayout />", () => {
 
   it("abre el cajón y lleva el foco al botón de cerrar", async () => {
     const user = userEvent.setup();
-    render(<AppLayout {...props}>contenido</AppLayout>);
+    renderLayout();
 
     await user.click(screen.getByRole("button", { name: "Abrir menú" }));
 
@@ -46,7 +56,7 @@ describe("<AppLayout />", () => {
 
   it("cierra el cajón con la tecla Escape", async () => {
     const user = userEvent.setup();
-    render(<AppLayout {...props}>contenido</AppLayout>);
+    renderLayout();
 
     await user.click(screen.getByRole("button", { name: "Abrir menú" }));
     await user.keyboard("{Escape}");
@@ -56,7 +66,7 @@ describe("<AppLayout />", () => {
 
   it("devuelve el foco al botón de menú al cerrar", async () => {
     const user = userEvent.setup();
-    render(<AppLayout {...props}>contenido</AppLayout>);
+    renderLayout();
 
     const botonMenu = screen.getByRole("button", { name: "Abrir menú" });
     await user.click(botonMenu);
@@ -67,7 +77,7 @@ describe("<AppLayout />", () => {
 
   it("«Nueva tarea» desde el cajón lo cierra y ejecuta la acción", async () => {
     const user = userEvent.setup();
-    render(<AppLayout {...props}>contenido</AppLayout>);
+    renderLayout();
 
     await user.click(screen.getByRole("button", { name: "Abrir menú" }));
     await user.click(within(abrirCajon()).getByRole("button", { name: "Nueva tarea" }));
@@ -78,10 +88,45 @@ describe("<AppLayout />", () => {
 
   // Los destinos sin página no deben ser alcanzables por teclado (ADR-006).
   it("mantiene deshabilitados los destinos que aún no tienen página", () => {
-    render(<AppLayout {...props}>contenido</AppLayout>);
+    renderLayout();
 
     for (const etiqueta of ["Calendario", "Historial", "Configuración", "Ayuda"]) {
       expect(screen.getByRole("button", { name: new RegExp(`^${etiqueta}`) })).toBeDisabled();
     }
+  });
+
+  // Los destinos con página son enlaces reales (NavLink), con su URL.
+  it("los destinos con página son enlaces a su ruta", () => {
+    renderLayout();
+
+    expect(screen.getByRole("link", { name: "Inicio" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Cursos" })).toHaveAttribute("href", "/cursos");
+    expect(screen.getByRole("link", { name: "Disponibilidad" })).toHaveAttribute(
+      "href",
+      "/disponibilidad",
+    );
+  });
+
+  it("al hacer clic en un destino navega y lo marca como activo", async () => {
+    const user = userEvent.setup();
+    renderLayout("/cursos");
+
+    await user.click(screen.getByRole("link", { name: "Disponibilidad" }));
+
+    expect(screen.getByRole("link", { name: "Disponibilidad" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "Cursos" })).not.toHaveAttribute("aria-current");
+  });
+
+  it("marca el destino activo según la URL con aria-current", () => {
+    renderLayout("/disponibilidad");
+
+    expect(screen.getByRole("link", { name: "Disponibilidad" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "Cursos" })).not.toHaveAttribute("aria-current");
   });
 });

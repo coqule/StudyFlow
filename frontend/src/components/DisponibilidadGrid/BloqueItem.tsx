@@ -1,7 +1,10 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import type { CSSProperties, FormEvent } from "react";
 
 import type { Disponibilidad, NuevaDisponibilidad } from "../../types";
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO, CAMPO, ERROR, ETIQUETA } from "../ui/clases";
+import { SelectorHora } from "../ui/SelectorHora";
+import { normalizarHora } from "./tiempo";
 
 const DIAS: Disponibilidad["dia_semana"][] = [
   "lunes",
@@ -13,31 +16,34 @@ const DIAS: Disponibilidad["dia_semana"][] = [
   "domingo",
 ];
 
-// Postgres `time` puede devolver `HH:MM:SS`; se normaliza a `HH:MM` para
-// mostrarlo y para prellenar `<input type="time">` de forma consistente.
-function normalizarHora(hora: string): string {
-  return hora.slice(0, 5);
-}
-
 interface BloqueItemProps {
   bloque: Disponibilidad;
+  // Posición vertical dentro de la pista de tiempo (top/height en %). Opcional
+  // para que el componente se pueda montar suelto en pruebas sin una ventana.
+  posicion?: { top: string; height: string };
   actualizar: (id: string, cambios: Partial<NuevaDisponibilidad>) => Promise<boolean>;
   eliminar: (id: string) => Promise<boolean>;
   error: string | null;
 }
 
-// Bloque dentro de `DisponibilidadGrid`. Alterna entre vista normal y modo
-// edición inline en el propio bloque (design.md §6 — alternativa de modal
-// descartada por no haber librería de overlay). `actualizar`/`eliminar`
-// llegan por props desde la única instancia de `useDisponibilidad()` en
-// `AppShell`: BloqueItem NUNCA llama al hook por su cuenta, o quedaría
-// desconectado de la grilla visible.
-export function BloqueItem({ bloque, actualizar, eliminar, error }: BloqueItemProps) {
+// Bloque dentro de `DisponibilidadGrid`, renderizado como barra posicionada
+// por su hora. Alterna entre vista normal (barra) y edición inline (design.md
+// §6 — modal descartado por no haber librería de overlay). En edición el
+// formulario cubre la columna, así no depende del alto de la barra, que puede
+// ser muy fino. `actualizar`/`eliminar` llegan por props desde la única
+// instancia de `useDisponibilidad()` en `AppShell`: BloqueItem NUNCA llama al
+// hook por su cuenta, o quedaría desconectado de la grilla visible.
+export function BloqueItem({ bloque, posicion, actualizar, eliminar, error }: BloqueItemProps) {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [diaSemana, setDiaSemana] = useState(bloque.dia_semana);
   const [horaInicio, setHoraInicio] = useState(normalizarHora(bloque.hora_inicio));
   const [horaFin, setHoraFin] = useState(normalizarHora(bloque.hora_fin));
   const [errorFila, setErrorFila] = useState<string | null>(null);
+
+  const rango = `${normalizarHora(bloque.hora_inicio)}–${normalizarHora(bloque.hora_fin)}`;
+  const estiloPosicion: CSSProperties = posicion
+    ? { position: "absolute", top: posicion.top, height: posicion.height, left: 0, right: 0 }
+    : {};
 
   // "Editar" prellena los campos con los valores actuales del bloque (R22).
   const iniciarEdicion = () => {
@@ -99,68 +105,79 @@ export function BloqueItem({ bloque, actualizar, eliminar, error }: BloqueItemPr
 
   if (modoEdicion) {
     return (
-      <li className="flex flex-col gap-2 rounded border p-2">
-        <form onSubmit={(event) => void handleGuardar(event)} className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <label htmlFor={`bloque-${bloque.id}-dia`}>Día</label>
+      <div
+        className="absolute inset-x-0 top-0 z-10 rounded border border-outline-variant bg-surface-container-lowest p-sm shadow-sm"
+      >
+        <form onSubmit={(event) => void handleGuardar(event)} className="flex flex-col gap-xs">
+          <div className="flex max-w-[220px] flex-col gap-xs">
+            <label htmlFor={`bloque-${bloque.id}-dia`} className={ETIQUETA}>
+              Día
+            </label>
             <select
               id={`bloque-${bloque.id}-dia`}
               value={diaSemana}
               onChange={(event) =>
                 setDiaSemana(event.target.value as Disponibilidad["dia_semana"])
               }
+              className={`${CAMPO} capitalize`}
             >
               {DIAS.map((dia) => (
-                <option key={dia} value={dia}>
+                <option key={dia} value={dia} className="capitalize">
                   {dia}
                 </option>
               ))}
             </select>
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor={`bloque-${bloque.id}-inicio`}>Hora inicio</label>
-            <input
-              id={`bloque-${bloque.id}-inicio`}
-              type="time"
-              value={horaInicio}
-              onChange={(event) => setHoraInicio(event.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor={`bloque-${bloque.id}-fin`}>Hora fin</label>
-            <input
-              id={`bloque-${bloque.id}-fin`}
-              type="time"
-              value={horaFin}
-              onChange={(event) => setHoraFin(event.target.value)}
-            />
-          </div>
-          {errorFila && <p role="alert">{errorFila}</p>}
-          <div className="flex gap-2">
-            <button type="submit">Guardar</button>
-            <button type="button" onClick={cancelarEdicion}>
+          <SelectorHora etiqueta="Hora inicio" value={horaInicio} onChange={setHoraInicio} />
+          <SelectorHora etiqueta="Hora fin" value={horaFin} onChange={setHoraFin} />
+          {errorFila && (
+            <p role="alert" className={ERROR}>
+              {errorFila}
+            </p>
+          )}
+          <div className="flex gap-xs">
+            <button type="submit" className={BOTON_PRIMARIO}>
+              Guardar
+            </button>
+            <button type="button" onClick={cancelarEdicion} className={BOTON_SECUNDARIO}>
               Cancelar
             </button>
           </div>
         </form>
-      </li>
+      </div>
     );
   }
 
   return (
-    <li className="flex items-center justify-between gap-2 rounded border p-2">
-      <span className="flex-1">
-        {normalizarHora(bloque.hora_inicio)}–{normalizarHora(bloque.hora_fin)}
-      </span>
-      <div className="flex gap-2">
-        <button type="button" onClick={iniciarEdicion}>
+    <div
+      style={estiloPosicion}
+      className="group flex min-h-[24px] flex-col justify-between overflow-hidden rounded-base bg-primary px-xs py-0.5 text-on-primary shadow-sm transition-opacity hover:opacity-100"
+    >
+      <span className="truncate text-label-md">{rango}</span>
+      {/* Los controles se revelan al pasar el puntero o al enfocar con teclado.
+          Están siempre en el DOM para que sean alcanzables sin depender del
+          hover (accesibilidad). */}
+      <div className="flex gap-xs opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+        <button
+          type="button"
+          onClick={iniciarEdicion}
+          className="rounded-sm bg-on-primary/20 px-xs text-label-md text-on-primary hover:bg-on-primary/30 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-on-primary"
+        >
           Editar
         </button>
-        <button type="button" onClick={() => void handleEliminar()}>
+        <button
+          type="button"
+          onClick={() => void handleEliminar()}
+          className="rounded-sm bg-on-primary/20 px-xs text-label-md text-on-primary hover:bg-on-primary/30 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-on-primary"
+        >
           Eliminar
         </button>
       </div>
-      {errorFila && <p role="alert">{errorFila}</p>}
-    </li>
+      {errorFila && (
+        <p role="alert" className="text-label-md text-on-primary">
+          {errorFila}
+        </p>
+      )}
+    </div>
   );
 }

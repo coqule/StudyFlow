@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 
 import type { Disponibilidad, NuevaDisponibilidad } from "../../types";
+import { BOTON_PRIMARIO, CAMPO, ERROR, ETIQUETA } from "../ui/clases";
+import { SelectorHora } from "../ui/SelectorHora";
 
 // Los siete días en orden L–D — coinciden con el tipo
 // `Disponibilidad.dia_semana` (sin tilde). El `<select>` garantiza un
@@ -52,44 +54,47 @@ export function DisponibilidadForm({ crear, error }: DisponibilidadFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <label htmlFor="disp-dia">Día</label>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-sm">
+      <div className="flex max-w-[220px] flex-col gap-xs">
+        <label htmlFor="disp-dia" className={ETIQUETA}>
+          Día
+        </label>
         <select
           id="disp-dia"
           value={diaSemana}
           onChange={(event) =>
             setDiaSemana(event.target.value as Disponibilidad["dia_semana"])
           }
+          className={`${CAMPO} capitalize`}
         >
           {DIAS.map((dia) => (
-            <option key={dia} value={dia}>
+            <option key={dia} value={dia} className="capitalize">
               {dia}
             </option>
           ))}
         </select>
       </div>
-      <div className="flex flex-col gap-1">
-        <label htmlFor="disp-hora-inicio">Hora inicio</label>
-        <input
-          id="disp-hora-inicio"
-          type="time"
-          value={horaInicio}
-          onChange={(event) => setHoraInicio(event.target.value)}
-        />
+      <div className="flex flex-col gap-sm sm:flex-row">
+        <div className="flex-1">
+          <SelectorHora etiqueta="Hora inicio" value={horaInicio} onChange={setHoraInicio} />
+        </div>
+        <div className="flex-1">
+          <SelectorHora etiqueta="Hora fin" value={horaFin} onChange={setHoraFin} />
+        </div>
       </div>
-      <div className="flex flex-col gap-1">
-        <label htmlFor="disp-hora-fin">Hora fin</label>
-        <input
-          id="disp-hora-fin"
-          type="time"
-          value={horaFin}
-          onChange={(event) => setHoraFin(event.target.value)}
-        />
-      </div>
-      {errorLocal && <p role="alert">{errorLocal}</p>}
-      {error && <p role="alert">{error}</p>}
-      <button type="submit">Agregar bloque</button>
+      {errorLocal && (
+        <p role="alert" className={ERROR}>
+          {errorLocal}
+        </p>
+      )}
+      {error && (
+        <p role="alert" className={ERROR}>
+          {error}
+        </p>
+      )}
+      <button type="submit" className={`${BOTON_PRIMARIO} self-start`}>
+        Agregar bloque
+      </button>
     </form>
   );
 }

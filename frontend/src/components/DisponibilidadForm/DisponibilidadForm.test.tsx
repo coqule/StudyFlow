@@ -8,6 +8,18 @@ import { DisponibilidadForm } from "./DisponibilidadForm";
 // real, solo se le pasa un mock de la prop.
 const mockCrear = jest.fn();
 
+// La hora se elige con dos <select> (hora 00-23, minutos), por su nombre
+// accesible "<etiqueta>, hora" / ", minutos".
+async function fijarHora(
+  user: ReturnType<typeof userEvent.setup>,
+  etiqueta: string,
+  hhmm: string
+) {
+  const [h, m] = hhmm.split(":");
+  await user.selectOptions(screen.getByLabelText(`${etiqueta}, hora`), String(Number(h)));
+  await user.selectOptions(screen.getByLabelText(`${etiqueta}, minutos`), String(Number(m)));
+}
+
 describe("<DisponibilidadForm />", () => {
   beforeEach(() => {
     mockCrear.mockClear();
@@ -18,10 +30,8 @@ describe("<DisponibilidadForm />", () => {
     render(<DisponibilidadForm crear={mockCrear} error={null} />);
 
     await user.selectOptions(screen.getByLabelText("Día"), "miercoles");
-    await user.clear(screen.getByLabelText("Hora inicio"));
-    await user.type(screen.getByLabelText("Hora inicio"), "18:00");
-    await user.clear(screen.getByLabelText("Hora fin"));
-    await user.type(screen.getByLabelText("Hora fin"), "20:00");
+    await fijarHora(user, "Hora inicio", "18:00");
+    await fijarHora(user, "Hora fin", "20:00");
     await user.click(screen.getByText("Agregar bloque"));
 
     expect(mockCrear).toHaveBeenCalledWith({
@@ -35,10 +45,8 @@ describe("<DisponibilidadForm />", () => {
     const user = userEvent.setup();
     render(<DisponibilidadForm crear={mockCrear} error={null} />);
 
-    await user.clear(screen.getByLabelText("Hora inicio"));
-    await user.type(screen.getByLabelText("Hora inicio"), "10:00");
-    await user.clear(screen.getByLabelText("Hora fin"));
-    await user.type(screen.getByLabelText("Hora fin"), "09:00");
+    await fijarHora(user, "Hora inicio", "10:00");
+    await fijarHora(user, "Hora fin", "09:00");
     await user.click(screen.getByText("Agregar bloque"));
 
     expect(screen.getByRole("alert")).toHaveTextContent(/hora de fin/i);
