@@ -132,7 +132,7 @@ describe("<AppLayout />", () => {
     renderLayout();
 
     expect(screen.getByRole("link", { name: "Inicio" })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: "Calendario" })).toHaveAttribute("href", "/horarios");
+    expect(screen.getByRole("link", { name: "Horarios" })).toHaveAttribute("href", "/horarios");
     expect(screen.getByRole("link", { name: "Cursos" })).toHaveAttribute("href", "/cursos");
     expect(screen.getByRole("link", { name: "Disponibilidad" })).toHaveAttribute(
       "href",

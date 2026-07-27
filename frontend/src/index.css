@@ -144,3 +144,11 @@
     color: var(--color-on-surface);
   }
 }
+
+/* Force max-w-sm to 24rem instead of inheriting --spacing-sm (Tailwind v4
+   maps max-w-* to --spacing-* when both are defined in @theme). */
+@layer utilities {
+  .max-w-sm {
+    max-width: 24rem;
+  }
+}
