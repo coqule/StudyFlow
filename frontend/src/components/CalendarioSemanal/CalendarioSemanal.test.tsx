@@ -67,11 +67,12 @@ describe("<CalendarioSemanal />", () => {
     expect(within(martes).queryByText("Cálculo II")).not.toBeInTheDocument();
   });
 
-  it("muestra nombre del curso y tipo de tarea en cada bloque (R9)", () => {
+  it("muestra nombre del curso, tipo y título de tarea en cada bloque (R9)", () => {
     render(<CalendarioSemanal bloques={[bloqueLunesIa]} />);
 
     expect(screen.getByText("Cálculo II")).toBeInTheDocument();
-    expect(screen.getByText(/examen/i)).toBeInTheDocument();
+    expect(screen.getByText("examen")).toBeInTheDocument();
+    expect(screen.getByText("Examen Cálculo II")).toBeInTheDocument();
   });
 
   it("colorea cada bloque según curso_color (R9)", () => {
