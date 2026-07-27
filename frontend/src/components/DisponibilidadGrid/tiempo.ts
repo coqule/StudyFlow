@@ -1,5 +1,3 @@
-import type { Disponibilidad } from "../../types";
-
 // Utilidades para posicionar los bloques en el eje vertical de la grilla.
 // Postgres `time` puede llegar como `HH:MM:SS`; todo se normaliza a minutos
 // desde medianoche para el cálculo y a `HH:MM` para mostrar.
@@ -23,9 +21,12 @@ export interface Ventana {
 export const VENTANA_DIA: Ventana = { inicio: 0, fin: 24 * 60 };
 
 // Posición vertical de un bloque como porcentajes top/height dentro de la
-// ventana, listos para un elemento posicionado en absoluto.
+// ventana, listos para un elemento posicionado en absoluto. Acepta cualquier
+// objeto con `hora_inicio`/`hora_fin` (Disponibilidad y BloqueHorario ambos lo
+// satisfacen), para que la grilla de disponibilidad y el calendario semanal
+// compartan el mismo cálculo de layout temporal.
 export function posicionBloque(
-  bloque: Disponibilidad,
+  bloque: { hora_inicio: string; hora_fin: string },
   ventana: Ventana,
 ): { top: string; height: string } {
   const span = ventana.fin - ventana.inicio;

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LoginPage } from "./pages/LoginPage";
@@ -7,6 +7,7 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { HomePage } from "./pages/HomePage";
 import { PanelRegistroPage } from "./pages/PanelRegistroPage";
 import { DisponibilidadPage } from "./pages/DisponibilidadPage";
+import { HorariosPage } from "./pages/HorariosPage";
 import { AppLayout } from "./components/ui/AppLayout";
 import { CursoForm } from "./components/CursoForm/CursoForm";
 import { CursoList } from "./components/CursoList/CursoList";
@@ -17,6 +18,7 @@ import { DisponibilidadGrid } from "./components/DisponibilidadGrid/Disponibilid
 import { useCursos } from "./hooks/useCursos";
 import { useTareas } from "./hooks/useTareas";
 import { useDisponibilidad } from "./hooks/useDisponibilidad";
+import { useHorarios } from "./hooks/useHorarios";
 
 type Pantalla = "login" | "register";
 
@@ -27,27 +29,25 @@ type Pantalla = "login" | "register";
 function AppShell() {
   const { session, usuario, logout } = useAuth();
   const [pantalla, setPantalla] = useState<Pantalla>("login");
-  const [pedirFocoTarea, setPedirFocoTarea] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const cursos = useCursos();
   const tareas = useTareas();
   // Instancia única de useDisponibilidad() en AppShell (design.md §6): ningún
   // componente hijo llama al hook por su cuenta — todos reciben sus funciones
   // por props para compartir el mismo estado que la grilla visible.
   const disponibilidad = useDisponibilidad();
+  // Instancia única de useHorarios() en AppShell (specs/generar_ui/design.md
+  // §4, R6): compartida entre AppLayout (botón "Generar horario") y la ruta
+  // /horarios (grilla), mismo criterio que useDisponibilidad de arriba.
+  const horarios = useHorarios();
 
-  // «Nueva tarea» puede pulsarse desde cualquier vista: primero navega al
-  // panel (donde vive el formulario) y recién cuando el campo está montado se
-  // le lleva el foco. Por eso el foco espera a un efecto y no se hace en el
-  // mismo clic.
-  useEffect(() => {
-    if (!pedirFocoTarea || location.pathname !== "/cursos") return;
-    const campo = document.getElementById("tarea-titulo");
-    campo?.scrollIntoView({ behavior: "smooth", block: "center" });
-    campo?.focus({ preventScroll: true });
-    setPedirFocoTarea(false);
-  }, [pedirFocoTarea, location.pathname]);
+  // «Generar horario» (feature 15, R1) puede pulsarse desde cualquier vista:
+  // navega a /horarios y dispara la generación; useHorarios.generar() ya
+  // trae su propio guard de concurrencia (R3).
+  const onGenerarHorario = () => {
+    navigate("/horarios");
+    void horarios.generar();
+  };
 
   if (!session) {
     return pantalla === "login" ? (
@@ -61,13 +61,22 @@ function AppShell() {
     <AppLayout
       nombreUsuario={usuario?.nombre || usuario?.correo || ""}
       onCerrarSesion={() => void logout()}
-      onNuevaTarea={() => {
-        navigate("/cursos");
-        setPedirFocoTarea(true);
-      }}
+      onGenerarHorario={onGenerarHorario}
+      generando={horarios.generando}
     >
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route
+          path="/horarios"
+          element={
+            <HorariosPage
+              data={horarios.data}
+              loading={horarios.loading}
+              generando={horarios.generando}
+              error={horarios.error}
+            />
+          }
+        />
         <Route
           path="/cursos"
           element={

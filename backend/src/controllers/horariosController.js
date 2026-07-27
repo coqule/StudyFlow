@@ -66,4 +66,18 @@ async function ajustar(req, res, next) {
   }
 }
 
-module.exports = { generar, ajustar };
+// listar(): vista del calendario semanal (feature 14). Sin IA — a diferencia de
+// generar/ajustar, aquí no se traduce nada a 503. El `usuario_id` viene siempre
+// del token (`req.usuario_id`), nunca del body/query (R7). Responde 200
+// `{ bloques }` (R2, R4). Un error de DB llega con `code: "DB_ERROR"` y lo
+// formatea el middleware central (R5).
+async function listar(req, res, next) {
+  try {
+    const bloques = await horariosService.listarHorario(req.usuario_id); // R1, R7
+    res.status(200).json({ bloques }); // R2, R4
+  } catch (err) {
+    return next(err); // R5
+  }
+}
+
+module.exports = { generar, ajustar, listar };

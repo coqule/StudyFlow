@@ -197,10 +197,58 @@ async function ajustarHorario(usuario_id, instruccion) {
   return { bloques_eliminados: resultado.eliminados, bloques_creados: filas }; // R12
 }
 
+// ---------------------------------------------------------------------------
+// Feature 14 — GET /api/horarios (vista del calendario semanal)
+// ---------------------------------------------------------------------------
+
+// R1–R5, R7 — Lista los bloques del usuario con los datos extendidos del JOIN
+// (tarea + curso) que necesita la vista. Función SEPARADA de
+// `obtenerHorarioVigente` (feature 12) a propósito: aquélla alimenta el
+// algoritmo incremental de ajuste y devuelve el conjunto mínimo de campos;
+// enriquecerla acoplaría la vista a ese flujo ya cerrado (design.md §9).
+//
+// Aislamiento por usuario (R1, R7): el cliente usa service role key y bypassa
+// RLS; el filtro `.eq("tareas.cursos.usuario_id", usuario_id)` es la protección
+// real, mismo criterio que el resto del servicio. El `usuario_id` proviene
+// siempre del token (lo pasa el controller), nunca del body/query.
+//
+// El shape devuelto suma `tarea_tipo` y `tarea_prioridad` como extensión
+// aditiva del contrato de docs/api-contratos.md: R9 los exige en el frontend
+// (tipo de tarea + indicador de prioridad alta). Ver nota en tasks.md.
+async function listarHorario(usuario_id) {
+  const { data, error } = await supabase
+    .from("bloques_horario")
+    .select(
+      "id, tarea_id, fecha, hora_inicio, hora_fin, generado_por_ia, justificacion, " +
+        "tareas!inner(titulo, tipo, prioridad, cursos!inner(nombre, color, usuario_id))"
+    )
+    .eq("tareas.cursos.usuario_id", usuario_id); // R1, R7
+
+  if (error) {
+    throw crearError("No se pudo leer el horario", 500, "DB_ERROR"); // R5
+  }
+
+  return (data ?? []).map((b) => ({
+    id: b.id,
+    tarea_id: b.tarea_id,
+    tarea_titulo: b.tareas.titulo,
+    tarea_tipo: b.tareas.tipo,
+    tarea_prioridad: b.tareas.prioridad,
+    curso_nombre: b.tareas.cursos.nombre,
+    curso_color: b.tareas.cursos.color,
+    fecha: b.fecha,
+    hora_inicio: normalizarHora(b.hora_inicio), // R3
+    hora_fin: normalizarHora(b.hora_fin), // R3
+    generado_por_ia: b.generado_por_ia,
+    justificacion: b.justificacion,
+  })); // R2, R4
+}
+
 module.exports = {
   generarHorario,
   verificarPropiedad,
   aFila,
   ajustarHorario,
   verificarEliminados,
+  listarHorario,
 };

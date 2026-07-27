@@ -19,7 +19,7 @@ interface ItemNav {
 
 const NAVEGACION: ItemNav[] = [
   { etiqueta: "Inicio", ruta: "/" },
-  { etiqueta: "Calendario", ruta: null },
+  { etiqueta: "Calendario", ruta: "/horarios" },
   { etiqueta: "Cursos", ruta: "/cursos" },
   { etiqueta: "Disponibilidad", ruta: "/disponibilidad" },
   { etiqueta: "Historial", ruta: null },
@@ -72,14 +72,22 @@ function ItemNavegacion({ etiqueta, ruta, onNavegar }: ItemNavegacionProps) {
 
 interface ContenidoBarraProps {
   onNavegar?: () => void;
-  onNuevaTarea: () => void;
+  onGenerarHorario: () => void;
+  generando: boolean;
 }
 
 // El contenido de la barra se escribe una sola vez y se monta en dos sitios:
 // la columna fija de escritorio y el cajón de móvil. Duplicarlo garantizaría
 // que las dos versiones se separen en el primer cambio. `onNavegar` sirve al
 // cajón para cerrarse al elegir un destino.
-function ContenidoBarra({ onNavegar, onNuevaTarea }: ContenidoBarraProps) {
+//
+// "Generar horario" (feature 15) reemplaza a "Nueva tarea" en este lugar del
+// árbol (specs/generar_ui/requirements.md R7, decisión explícita del
+// usuario): visible y disparable desde cualquier ruta, deshabilitado mientras
+// `generando` es true para cubrir R2 (indicador de carga) y R3 (no disparar
+// una segunda petición concurrente si se hace click mientras ya está en
+// curso).
+function ContenidoBarra({ onNavegar, onGenerarHorario, generando }: ContenidoBarraProps) {
   return (
     <>
       <nav aria-label="Secciones">
@@ -92,10 +100,12 @@ function ContenidoBarra({ onNavegar, onNuevaTarea }: ContenidoBarraProps) {
 
       <button
         type="button"
-        onClick={onNuevaTarea}
-        className="mt-auto mb-sm w-full rounded-lg bg-primary py-sm text-label-md text-on-primary transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        onClick={onGenerarHorario}
+        disabled={generando}
+        aria-busy={generando}
+        className="mt-auto mb-sm w-full rounded-lg bg-primary py-sm text-label-md text-on-primary transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Nueva tarea
+        Generar horario
       </button>
 
       <div className="border-t border-outline-variant pt-sm">
@@ -112,14 +122,16 @@ function ContenidoBarra({ onNavegar, onNuevaTarea }: ContenidoBarraProps) {
 interface AppLayoutProps {
   nombreUsuario: string;
   onCerrarSesion: () => void;
-  onNuevaTarea: () => void;
+  onGenerarHorario: () => void;
+  generando: boolean;
   children: ReactNode;
 }
 
 export function AppLayout({
   nombreUsuario,
   onCerrarSesion,
-  onNuevaTarea,
+  onGenerarHorario,
+  generando,
   children,
 }: AppLayoutProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
@@ -147,16 +159,16 @@ export function AppLayout({
     botonMenuRef.current?.focus();
   };
 
-  const nuevaTareaDesdeCajon = () => {
+  const generarHorarioDesdeCajon = () => {
     setMenuAbierto(false);
-    onNuevaTarea();
+    onGenerarHorario();
   };
 
   return (
     <div className="min-h-screen bg-background">
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-outline-variant bg-surface px-sm py-md md:flex">
         <span className="mb-lg px-sm font-display text-headline-sm text-primary">StudyFlow</span>
-        <ContenidoBarra onNuevaTarea={onNuevaTarea} />
+        <ContenidoBarra onGenerarHorario={onGenerarHorario} generando={generando} />
       </aside>
 
       {menuAbierto && (
@@ -186,7 +198,11 @@ export function AppLayout({
                 Cerrar
               </button>
             </div>
-            <ContenidoBarra onNavegar={() => setMenuAbierto(false)} onNuevaTarea={nuevaTareaDesdeCajon} />
+            <ContenidoBarra
+              onNavegar={() => setMenuAbierto(false)}
+              onGenerarHorario={generarHorarioDesdeCajon}
+              generando={generando}
+            />
           </div>
         </div>
       )}

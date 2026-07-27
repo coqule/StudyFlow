@@ -73,7 +73,13 @@ export interface BloqueHorario {
   justificacion: string;
   // Campos extendidos del JOIN que devuelve GET /api/horarios
   // (ver docs/api-contratos.md) — no persistidos en la tabla bloques_horario.
+  // `tarea_tipo` y `tarea_prioridad` son una extensión aditiva del contrato
+  // documentado: la vista semanal (feature 14, R9) necesita mostrar el tipo de
+  // tarea y un indicador de prioridad alta. Opcionales porque solo existen en
+  // la respuesta enriquecida, no en la fila cruda de bloques_horario.
   tarea_titulo?: string;
+  tarea_tipo?: Tarea["tipo"];
+  tarea_prioridad?: number; // 1-5
   curso_nombre?: string;
   curso_color?: string;
 }
