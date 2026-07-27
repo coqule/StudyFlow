@@ -6,7 +6,9 @@ const props = {
   data: [],
   loading: false,
   generando: false,
+  ajustando: false,
   error: null,
+  ajustar: jest.fn(),
 };
 
 // HorariosPage.tsx deja de instanciar useHorarios() por su cuenta desde la
@@ -34,5 +36,17 @@ describe("<HorariosPage />", () => {
     // de día cuando `data` está vacío — confirma que el calendario se sigue
     // renderizando debajo del overlay, no se reemplaza por él.
     expect(screen.getAllByText("Sin bloques").length).toBeGreaterThan(0);
+  });
+
+  it("muestra la caja de ajuste conversacional (feature 16) una vez cargado el horario", () => {
+    render(<HorariosPage {...props} />);
+
+    expect(screen.getByRole("heading", { name: /pedir un ajuste/i })).toBeInTheDocument();
+  });
+
+  it("no muestra la caja de ajuste mientras el horario carga por primera vez", () => {
+    render(<HorariosPage {...props} loading={true} />);
+
+    expect(screen.queryByRole("heading", { name: /pedir un ajuste/i })).not.toBeInTheDocument();
   });
 });

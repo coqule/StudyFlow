@@ -57,3 +57,16 @@ export async function generarHorario(accessToken: string): Promise<void> {
   });
   await manejarRespuesta<{ bloques: unknown[] }>(res);
 }
+
+// ajustarHorario(): POST /api/horarios/ajustar — feature 16. Igual que
+// generarHorario, la respuesta cruda de `bloques_creados` no trae los campos
+// enriquecidos del JOIN (docs/api-contratos.md), así que el hook vuelve a
+// llamar `listarHorarios()` en vez de usar este resultado directamente.
+export async function ajustarHorario(accessToken: string, instruccion: string): Promise<void> {
+  const res = await fetch(`${API_URL}/horarios/ajustar`, {
+    method: "POST",
+    headers: headers(accessToken),
+    body: JSON.stringify({ instruccion }),
+  });
+  await manejarRespuesta<{ bloques_eliminados: string[]; bloques_creados: unknown[] }>(res);
+}

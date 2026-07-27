@@ -37,5 +37,12 @@ export const BOTON_SECUNDARIO =
   "transition-colors hover:bg-surface-container-low " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
+// Botón de acento (tertiary), para acciones puntuales fuera del flujo
+// primario/secundario — p. ej. "Enviar" en la caja de ajuste conversacional.
+export const BOTON_ACENTO =
+  "rounded bg-tertiary px-md py-xs text-label-md text-on-tertiary transition-opacity " +
+  "hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary " +
+  "disabled:cursor-not-allowed disabled:opacity-50";
+
 // Mensaje de error de formulario.
 export const ERROR = "text-body-sm text-error";
