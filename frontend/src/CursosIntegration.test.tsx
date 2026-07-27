@@ -68,6 +68,14 @@ jest.mock("./services/disponibilidadApi", () => ({
   eliminarBloque: jest.fn(),
 }));
 
+// MOCK: backend desactivado — `horariosApi.ts` también usa `import.meta.env`
+// (feature 14; feature 15 agrega `generarHorario`). Mismo motivo que el resto
+// de los api.
+jest.mock("./services/horariosApi", () => ({
+  listarHorarios: jest.fn().mockResolvedValue([]),
+  generarHorario: jest.fn().mockResolvedValue(undefined),
+}));
+
 // Regresión de R30 (bug real de R13 encontrado en pruebas manuales
 // post-review, specs/cursos_crud/design.md §7.7): antes de este fix
 // `CursoForm` llamaba su propia instancia de `useCursos()`, desconectada de
