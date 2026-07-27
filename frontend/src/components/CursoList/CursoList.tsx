@@ -21,9 +21,11 @@ export function CursoList({ cursos, actualizar, eliminar, error }: CursoListProp
     return <p className="text-body-sm text-on-surface-variant">Aún no tienes cursos.</p>;
   }
 
+  const ordenados = [...cursos].sort((a, b) => b.dificultad - a.dificultad);
+
   return (
     <ul className="flex flex-col gap-xs">
-      {cursos.map((curso) => (
+      {ordenados.map((curso) => (
         <CursoListItem
           key={curso.id}
           curso={curso}

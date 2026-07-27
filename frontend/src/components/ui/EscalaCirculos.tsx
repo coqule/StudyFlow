@@ -32,7 +32,7 @@ export function EscalaCirculos({
 
   return (
     <fieldset className="flex flex-col gap-xs border-0 p-0">
-      <legend className={ETIQUETA}>{etiqueta}</legend>
+      <legend className={`${ETIQUETA} mb-2`}>{etiqueta}</legend>
       <div className="flex gap-xs">
         {opciones.map((n) => (
           <label key={n} className="cursor-pointer">
