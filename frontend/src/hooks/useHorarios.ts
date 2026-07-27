@@ -8,8 +8,10 @@ interface UseHorariosResult {
   data: BloqueHorario[];
   loading: boolean;
   generando: boolean;
+  ajustando: boolean;
   error: string | null;
   generar: () => Promise<void>;
+  ajustar: (instruccion: string) => Promise<void>;
 }
 
 function mensajeError(error: unknown): string {
@@ -33,12 +35,15 @@ export function useHorarios(): UseHorariosResult {
   const [data, setData] = useState<BloqueHorario[]>([]);
   const [loading, setLoading] = useState(true);
   const [generando, setGenerando] = useState(false);
+  const [ajustando, setAjustando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Ref (no estado) para el guard de concurrencia de `generar()`: se lee y
   // escribe de forma síncrona antes de cualquier `await`, así que dos clics
   // en el mismo tick (antes de que React vuelva a renderizar con
   // `generando=true`) igual quedan bloqueados — cubre R3.
   const generandoRef = useRef(false);
+  // Mismo guard de concurrencia que `generandoRef`, para `ajustar()`.
+  const ajustandoRef = useRef(false);
 
   useEffect(() => {
     let activo = true;
@@ -75,9 +80,15 @@ export function useHorarios(): UseHorariosResult {
   // generar(): guard de concurrencia (R3) → POST /api/horarios/generar → en
   // éxito, refetch de GET /api/horarios para el shape enriquecido (R4); en
   // error, deja el mensaje en `error` sin tocar `data` (R5).
+  //
+  // También se bloquea si `ajustar()` está en curso (y viceversa, más abajo):
+  // ambas terminan con el mismo `setData(bloques)` de un refetch propio e
+  // independiente, así que sin este chequeo cruzado dos peticiones
+  // concurrentes se pisarían entre sí — la que resuelve último gana en
+  // silencio y descarta el resultado de la otra.
   const generar = useCallback(async () => {
     if (!accessToken) return;
-    if (generandoRef.current) return;
+    if (generandoRef.current || ajustandoRef.current) return;
 
     generandoRef.current = true;
     setGenerando(true);
@@ -95,5 +106,33 @@ export function useHorarios(): UseHorariosResult {
     }
   }, [accessToken]);
 
-  return { data, loading, generando, error, generar };
+  // ajustar(instruccion): guard de concurrencia (mismo criterio que R3 de
+  // generar(), incluido el bloqueo cruzado con `generandoRef` — ver
+  // comentario arriba) → POST /api/horarios/ajustar → en éxito, refetch de
+  // GET /api/horarios para el shape enriquecido; en error, deja el mensaje en
+  // `error` sin tocar `data` — el calendario permanece en su estado anterior.
+  const ajustar = useCallback(
+    async (instruccion: string) => {
+      if (!accessToken) return;
+      if (ajustandoRef.current || generandoRef.current) return;
+
+      ajustandoRef.current = true;
+      setAjustando(true);
+      setError(null);
+
+      try {
+        await horariosApi.ajustarHorario(accessToken, instruccion);
+        const bloques = await horariosApi.listarHorarios(accessToken);
+        setData(bloques);
+      } catch (err) {
+        setError(mensajeError(err));
+      } finally {
+        ajustandoRef.current = false;
+        setAjustando(false);
+      }
+    },
+    [accessToken],
+  );
+
+  return { data, loading, generando, ajustando, error, generar, ajustar };
 }

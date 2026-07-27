@@ -55,7 +55,7 @@ function AppShell() {
       nombreUsuario={usuario?.nombre || usuario?.correo || ""}
       onCerrarSesion={() => void logout()}
       onGenerarHorario={onGenerarHorario}
-      generando={horarios.generando}
+      generando={horarios.generando || horarios.ajustando}
       puedeGenerar={puedeGenerar}
     >
       <Routes>
@@ -67,7 +67,9 @@ function AppShell() {
               data={horarios.data}
               loading={horarios.loading}
               generando={horarios.generando}
+              ajustando={horarios.ajustando}
               error={horarios.error}
+              ajustar={horarios.ajustar}
             />
           }
         />
