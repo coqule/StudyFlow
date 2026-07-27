@@ -193,7 +193,9 @@ export function AppLayout({
   return (
     <div className="min-h-screen bg-background">
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-outline-variant bg-surface px-sm py-md md:flex">
-        <span className="mb-lg px-sm font-display text-headline-sm text-primary">StudyFlow</span>
+        <span className="mb-lg text-center font-display text-headline-lg text-primary">
+          <span className="text-[1.4em]">S</span>tudyFlow
+        </span>
         <ContenidoBarra onGenerarHorario={onGenerarHorario} generando={generando} puedeGenerar={puedeGenerar} />
       </aside>
 
@@ -214,7 +216,9 @@ export function AppLayout({
             className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-outline-variant bg-surface px-sm py-md"
           >
             <div className="mb-lg flex items-center justify-between px-sm">
-              <span className="font-display text-headline-sm text-primary">StudyFlow</span>
+              <span className="font-display text-headline-lg text-primary">
+                <span className="text-[1.4em]">S</span>tudyFlow
+              </span>
               <button
                 ref={cerrarCajonRef}
                 type="button"
@@ -252,7 +256,9 @@ export function AppLayout({
                 <span className="h-0.5 w-full rounded-full bg-current" />
               </span>
             </button>
-            <span className="font-display text-headline-sm text-primary">StudyFlow</span>
+            <span className="font-display text-headline-lg text-primary">
+              <span className="text-[1.4em]">S</span>tudyFlow
+            </span>
           </div>
           <div className="flex items-center gap-sm md:ml-auto">
             <span className="text-body-sm text-on-surface-variant">{nombreUsuario}</span>
