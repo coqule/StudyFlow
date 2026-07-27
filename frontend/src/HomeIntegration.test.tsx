@@ -47,6 +47,14 @@ jest.mock("./services/disponibilidadApi", () => ({
   eliminarBloque: jest.fn(),
 }));
 
+// MOCK: backend desactivado — `horariosApi.ts` también usa `import.meta.env`
+// (feature 14; feature 15 agrega `generarHorario`). Mismo motivo que el resto
+// de los api.
+jest.mock("./services/horariosApi", () => ({
+  listarHorarios: jest.fn().mockResolvedValue([]),
+  generarHorario: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe("Integración HomePage dentro de App", () => {
   it("con sesión activa y sin ruta previa, la raíz muestra HomePage", async () => {
     window.history.pushState({}, "", "/");

@@ -7,6 +7,7 @@ const horariosController = require("../controllers/horariosController");
 // y `req.usuario_id` ya está disponible para el controller (R1).
 const router = express.Router();
 
+router.get("/", horariosController.listar);
 router.post("/generar", horariosController.generar);
 router.post("/ajustar", horariosController.ajustar);
 

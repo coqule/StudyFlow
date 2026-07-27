@@ -50,6 +50,15 @@ jest.mock("./services/disponibilidadApi", () => ({
   eliminarBloque: jest.fn(),
 }));
 
+// MOCK: backend desactivado — `horariosApi.ts` también usa `import.meta.env`
+// (ESM que `tsconfig.jest.json` no transforma). Se mockea por el mismo motivo
+// que `cursosApi` (feature 14, GET /api/horarios; feature 15,
+// POST /api/horarios/generar).
+jest.mock("./services/horariosApi", () => ({
+  listarHorarios: jest.fn().mockResolvedValue([]),
+  generarHorario: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe("<App />", () => {
   it("renderiza sin lanzar excepción y muestra 'StudyFlow' en el DOM", async () => {
     // AuthProvider resuelve `getSession()` de forma asíncrona al montar —

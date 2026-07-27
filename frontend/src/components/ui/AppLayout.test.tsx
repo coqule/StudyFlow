@@ -7,15 +7,18 @@ import { AppLayout } from "./AppLayout";
 const props = {
   nombreUsuario: "Ana",
   onCerrarSesion: jest.fn(),
-  onNuevaTarea: jest.fn(),
+  onGenerarHorario: jest.fn(),
+  generando: false,
 };
 
 // AppLayout usa NavLink, que exige contexto de Router. Se envuelve en
 // MemoryRouter con la ruta inicial indicada.
-function renderLayout(rutaInicial = "/cursos") {
+function renderLayout(rutaInicial = "/cursos", propsExtra: Partial<typeof props> = {}) {
   return render(
     <MemoryRouter initialEntries={[rutaInicial]}>
-      <AppLayout {...props}>contenido</AppLayout>
+      <AppLayout {...props} {...propsExtra}>
+        contenido
+      </AppLayout>
     </MemoryRouter>,
   );
 }
@@ -30,7 +33,7 @@ function abrirCajon() {
 describe("<AppLayout />", () => {
   beforeEach(() => {
     props.onCerrarSesion.mockClear();
-    props.onNuevaTarea.mockClear();
+    props.onGenerarHorario.mockClear();
   });
 
   it("no monta el cajón hasta que se abre el menú", () => {
@@ -75,22 +78,51 @@ describe("<AppLayout />", () => {
     expect(botonMenu).toHaveFocus();
   });
 
-  it("«Nueva tarea» desde el cajón lo cierra y ejecuta la acción", async () => {
+  it("«Generar horario» desde el cajón lo cierra y ejecuta la acción", async () => {
     const user = userEvent.setup();
     renderLayout();
 
     await user.click(screen.getByRole("button", { name: "Abrir menú" }));
-    await user.click(within(abrirCajon()).getByRole("button", { name: "Nueva tarea" }));
+    await user.click(within(abrirCajon()).getByRole("button", { name: "Generar horario" }));
 
-    expect(props.onNuevaTarea).toHaveBeenCalledTimes(1);
+    expect(props.onGenerarHorario).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("«Generar horario» dispara la acción desde la columna fija de escritorio", async () => {
+    const user = userEvent.setup();
+    renderLayout();
+
+    await user.click(screen.getByRole("button", { name: "Generar horario" }));
+
+    expect(props.onGenerarHorario).toHaveBeenCalledTimes(1);
+  });
+
+  it("deshabilita «Generar horario» mientras generando es true (R2)", () => {
+    renderLayout("/cursos", { generando: true });
+
+    const botones = screen.getAllByRole("button", { name: "Generar horario" });
+    for (const boton of botones) {
+      expect(boton).toBeDisabled();
+      expect(boton).toHaveAttribute("aria-busy", "true");
+    }
+  });
+
+  it("no dispara una segunda petición si se hace click mientras generando es true (R3)", async () => {
+    const user = userEvent.setup();
+    renderLayout("/cursos", { generando: true });
+
+    const boton = screen.getAllByRole("button", { name: "Generar horario" })[0];
+    await user.click(boton);
+
+    expect(props.onGenerarHorario).not.toHaveBeenCalled();
   });
 
   // Los destinos sin página no deben ser alcanzables por teclado (ADR-006).
   it("mantiene deshabilitados los destinos que aún no tienen página", () => {
     renderLayout();
 
-    for (const etiqueta of ["Calendario", "Historial", "Configuración", "Ayuda"]) {
+    for (const etiqueta of ["Historial", "Configuración", "Ayuda"]) {
       expect(screen.getByRole("button", { name: new RegExp(`^${etiqueta}`) })).toBeDisabled();
     }
   });
@@ -100,6 +132,7 @@ describe("<AppLayout />", () => {
     renderLayout();
 
     expect(screen.getByRole("link", { name: "Inicio" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Calendario" })).toHaveAttribute("href", "/horarios");
     expect(screen.getByRole("link", { name: "Cursos" })).toHaveAttribute("href", "/cursos");
     expect(screen.getByRole("link", { name: "Disponibilidad" })).toHaveAttribute(
       "href",
