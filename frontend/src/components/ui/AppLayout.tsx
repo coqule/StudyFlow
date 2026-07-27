@@ -19,7 +19,7 @@ interface ItemNav {
 
 const NAVEGACION: ItemNav[] = [
   { etiqueta: "Inicio", ruta: "/" },
-  { etiqueta: "Calendario", ruta: "/horarios" },
+  { etiqueta: "Horarios", ruta: "/horarios" },
   { etiqueta: "Cursos", ruta: "/cursos" },
   { etiqueta: "Disponibilidad", ruta: "/disponibilidad" },
   { etiqueta: "Historial", ruta: null },
