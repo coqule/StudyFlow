@@ -1,6 +1,8 @@
+import { useState } from "react";
 import type { BloqueHorario } from "../../types";
 import { VENTANA_DIA, marcasHorarias, posicionBloque } from "../DisponibilidadGrid/tiempo";
 import { BloqueCalendario } from "./BloqueCalendario";
+import { BloqueModal } from "./BloqueModal";
 import { ERROR } from "../ui/clases";
 
 // Los siete días en orden L–D, con su inicial para la cabecera compacta. El
@@ -44,10 +46,17 @@ interface CalendarioSemanalProps {
 // (R11). Es presentacional: recibe `bloques` ya cargados por `useHorarios` en
 // la página; nunca llama al hook por su cuenta.
 export function CalendarioSemanal({ bloques, error }: CalendarioSemanalProps) {
+  const [bloqueSeleccionado, setBloqueSeleccionado] = useState<BloqueHorario | null>(null);
   const marcas = marcasHorarias(VENTANA_DIA);
 
   return (
     <div className="flex flex-col gap-sm">
+      <BloqueModal
+        bloque={bloqueSeleccionado}
+        abierto={bloqueSeleccionado !== null}
+        onCerrar={() => setBloqueSeleccionado(null)}
+      />
+
       {error && (
         <p role="alert" className={ERROR}>
           {error}
@@ -104,6 +113,7 @@ export function CalendarioSemanal({ bloques, error }: CalendarioSemanalProps) {
                         key={bloque.id}
                         bloque={bloque}
                         posicion={posicionBloque(bloque, VENTANA_DIA)}
+                        onClick={() => setBloqueSeleccionado(bloque)}
                       />
                     ))
                   )}

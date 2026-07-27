@@ -27,6 +27,11 @@ function AppShell() {
   const disponibilidad = useDisponibilidad();
   const horarios = useHorarios();
 
+  const puedeGenerar =
+    (cursos.data?.length ?? 0) > 0 &&
+    (tareas.data?.length ?? 0) > 0 &&
+    (disponibilidad.data?.length ?? 0) > 0;
+
   const onGenerarHorario = () => {
     navigate("/horarios");
     void horarios.generar();
@@ -51,6 +56,7 @@ function AppShell() {
       onCerrarSesion={() => void logout()}
       onGenerarHorario={onGenerarHorario}
       generando={horarios.generando}
+      puedeGenerar={puedeGenerar}
     >
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -71,22 +77,22 @@ function AppShell() {
             <PanelRegistroPage
               seccionCursos={<CursoForm crear={cursos.crear} />}
               seccionTareas={<TareaForm crear={tareas.crear} cursos={cursos.data} />}
-              seccionResumen={
-                <div className="flex flex-col gap-md">
-                  <CursoList
-                    cursos={cursos.data}
-                    actualizar={cursos.actualizar}
-                    eliminar={cursos.eliminar}
-                    error={cursos.error}
-                  />
-                  <TareaList
-                    tareas={tareas.data}
-                    cursos={cursos.data}
-                    actualizar={tareas.actualizar}
-                    eliminar={tareas.eliminar}
-                    error={tareas.error}
-                  />
-                </div>
+              seccionCursosLista={
+                <CursoList
+                  cursos={cursos.data}
+                  actualizar={cursos.actualizar}
+                  eliminar={cursos.eliminar}
+                  error={cursos.error}
+                />
+              }
+              seccionTareasLista={
+                <TareaList
+                  tareas={tareas.data}
+                  cursos={cursos.data}
+                  actualizar={tareas.actualizar}
+                  eliminar={tareas.eliminar}
+                  error={tareas.error}
+                />
               }
             />
           }

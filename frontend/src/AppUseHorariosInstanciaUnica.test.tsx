@@ -24,21 +24,27 @@ jest.mock("./services/supabaseClient", () => ({
 }));
 
 jest.mock("./services/cursosApi", () => ({
-  listarCursos: jest.fn().mockResolvedValue([]),
+  listarCursos: jest.fn().mockResolvedValue([
+    { id: "c1", usuario_id: "u1", nombre: "Curso prueba", color: "#3B82F6", dificultad: 3 },
+  ]),
   crearCurso: jest.fn(),
   actualizarCurso: jest.fn(),
   eliminarCurso: jest.fn(),
 }));
 
 jest.mock("./services/tareasApi", () => ({
-  listarTareas: jest.fn().mockResolvedValue([]),
+  listarTareas: jest.fn().mockResolvedValue([
+    { id: "t1", curso_id: "c1", titulo: "Tarea prueba", tipo: "tarea", fecha_limite: "2099-01-01", duracion_estimada_h: 1, prioridad: 3, estado: "pendiente" },
+  ]),
   crearTarea: jest.fn(),
   actualizarTarea: jest.fn(),
   eliminarTarea: jest.fn(),
 }));
 
 jest.mock("./services/disponibilidadApi", () => ({
-  listarDisponibilidad: jest.fn().mockResolvedValue([]),
+  listarDisponibilidad: jest.fn().mockResolvedValue([
+    { id: "d1", usuario_id: "u1", dia_semana: "lunes", hora_inicio: "08:00", hora_fin: "10:00" },
+  ]),
   crearBloque: jest.fn(),
   actualizarBloque: jest.fn(),
   eliminarBloque: jest.fn(),
