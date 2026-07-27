@@ -5,7 +5,8 @@ import { SECCION, TITULO_SECCION } from "../components/ui/clases";
 interface PanelRegistroPageProps {
   seccionCursos: ReactNode;
   seccionTareas: ReactNode;
-  seccionResumen: ReactNode;
+  seccionCursosLista: ReactNode;
+  seccionTareasLista: ReactNode;
 }
 
 interface SeccionProps {
@@ -35,7 +36,8 @@ function Seccion({ titulo, children }: SeccionProps) {
 export function PanelRegistroPage({
   seccionCursos,
   seccionTareas,
-  seccionResumen,
+  seccionCursosLista,
+  seccionTareasLista,
 }: PanelRegistroPageProps) {
   return (
     <div className="mx-auto flex max-w-[1200px] flex-col gap-gutter pb-xl">
@@ -48,8 +50,9 @@ export function PanelRegistroPage({
           <Seccion titulo="Cursos">{seccionCursos}</Seccion>
           <Seccion titulo="Tareas / Evaluaciones">{seccionTareas}</Seccion>
         </div>
-        <div className="lg:col-span-7">
-          <Seccion titulo="Lista de cursos y tareas registradas">{seccionResumen}</Seccion>
+        <div className="flex flex-col gap-gutter lg:col-span-7">
+          <Seccion titulo="Lista de cursos">{seccionCursosLista}</Seccion>
+          <Seccion titulo="Lista de tareas">{seccionTareasLista}</Seccion>
         </div>
       </div>
     </div>

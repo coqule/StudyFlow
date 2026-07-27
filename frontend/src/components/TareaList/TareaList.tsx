@@ -22,9 +22,11 @@ export function TareaList({ tareas, cursos, actualizar, eliminar, error }: Tarea
     return <p className="text-body-sm text-on-surface-variant">Aún no tienes tareas.</p>;
   }
 
+  const ordenados = [...tareas].sort((a, b) => a.prioridad - b.prioridad);
+
   return (
     <ul className="flex flex-col gap-xs">
-      {tareas.map((tarea) => (
+      {ordenados.map((tarea) => (
         <TareaListItem
           key={tarea.id}
           tarea={tarea}

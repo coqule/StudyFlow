@@ -80,7 +80,7 @@ export function CursoForm({ crear }: CursoFormProps) {
         />
 
         <fieldset className="flex flex-col gap-xs border-0 p-0">
-          <legend className={ETIQUETA}>Color</legend>
+          <legend className={`${ETIQUETA} mb-2`}>Color</legend>
           <div className="flex items-center gap-xs">
             {COLORES_SUGERIDOS.map(({ valor, nombre: nombreColor }) => (
               <label key={valor} className="cursor-pointer">
@@ -106,7 +106,7 @@ export function CursoForm({ crear }: CursoFormProps) {
             <span aria-hidden="true" className="mx-xs h-6 w-px bg-outline-variant" />
             <label
               htmlFor="curso-color"
-              className="flex cursor-pointer items-center gap-xs text-label-md text-on-surface-variant transition-colors hover:text-primary"
+              className="flex cursor-pointer items-center gap-xs pr-sm text-label-md text-on-surface-variant transition-colors hover:text-primary"
             >
               <input
                 id="curso-color"

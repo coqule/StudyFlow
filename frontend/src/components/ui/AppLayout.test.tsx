@@ -9,6 +9,7 @@ const props = {
   onCerrarSesion: jest.fn(),
   onGenerarHorario: jest.fn(),
   generando: false,
+  puedeGenerar: true,
 };
 
 // AppLayout usa NavLink, que exige contexto de Router. Se envuelve en

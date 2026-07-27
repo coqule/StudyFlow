@@ -74,6 +74,7 @@ interface ContenidoBarraProps {
   onNavegar?: () => void;
   onGenerarHorario: () => void;
   generando: boolean;
+  puedeGenerar: boolean;
 }
 
 // El contenido de la barra se escribe una sola vez y se monta en dos sitios:
@@ -87,7 +88,7 @@ interface ContenidoBarraProps {
 // `generando` es true para cubrir R2 (indicador de carga) y R3 (no disparar
 // una segunda petición concurrente si se hace click mientras ya está en
 // curso).
-function ContenidoBarra({ onNavegar, onGenerarHorario, generando }: ContenidoBarraProps) {
+function ContenidoBarra({ onNavegar, onGenerarHorario, generando, puedeGenerar }: ContenidoBarraProps) {
   return (
     <>
       <nav aria-label="Secciones">
@@ -101,8 +102,9 @@ function ContenidoBarra({ onNavegar, onGenerarHorario, generando }: ContenidoBar
       <button
         type="button"
         onClick={onGenerarHorario}
-        disabled={generando}
+        disabled={!puedeGenerar || generando}
         aria-busy={generando}
+        title={!puedeGenerar ? "Registra cursos, tareas y disponibilidad para generar un horario" : undefined}
         className="mt-auto mb-sm w-full rounded-lg bg-primary py-sm text-label-md text-on-primary transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
       >
         Generar horario
@@ -124,6 +126,7 @@ interface AppLayoutProps {
   onCerrarSesion: () => void;
   onGenerarHorario: () => void;
   generando: boolean;
+  puedeGenerar: boolean;
   children: ReactNode;
 }
 
@@ -132,6 +135,7 @@ export function AppLayout({
   onCerrarSesion,
   onGenerarHorario,
   generando,
+  puedeGenerar,
   children,
 }: AppLayoutProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
@@ -168,7 +172,7 @@ export function AppLayout({
     <div className="min-h-screen bg-background">
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-outline-variant bg-surface px-sm py-md md:flex">
         <span className="mb-lg px-sm font-display text-headline-sm text-primary">StudyFlow</span>
-        <ContenidoBarra onGenerarHorario={onGenerarHorario} generando={generando} />
+        <ContenidoBarra onGenerarHorario={onGenerarHorario} generando={generando} puedeGenerar={puedeGenerar} />
       </aside>
 
       {menuAbierto && (
@@ -202,6 +206,7 @@ export function AppLayout({
               onNavegar={() => setMenuAbierto(false)}
               onGenerarHorario={generarHorarioDesdeCajon}
               generando={generando}
+              puedeGenerar={puedeGenerar}
             />
           </div>
         </div>
