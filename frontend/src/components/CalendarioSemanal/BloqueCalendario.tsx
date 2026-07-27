@@ -49,10 +49,8 @@ export function BloqueCalendario({ bloque, posicion }: BloqueCalendarioProps) {
         )}
       </div>
 
-      <p className="truncate text-body-sm capitalize text-on-surface-variant">{bloque.tarea_tipo}</p>
-      <p className="truncate text-label-md text-on-surface-variant">
-        {bloque.hora_inicio}–{bloque.hora_fin}
-      </p>
+      <p className="truncate text-label-md capitalize text-on-surface">{bloque.tarea_tipo}</p>
+      <p className="truncate text-label-md text-on-surface-variant">{bloque.tarea_titulo}</p>
 
       {/* La distinción IA vs manual no se apoya solo en el estilo del borde:
           se nombra para lectores de pantalla (R10). El `aria-label` es el
