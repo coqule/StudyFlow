@@ -15,19 +15,28 @@ import { BOTON_SECUNDARIO } from "./clases";
 interface ItemNav {
   etiqueta: string;
   ruta: string | null;
+  icono: ReactNode;
 }
 
+function IconoInicio() { return <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M2 10l8-7 8 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M4 8v8a1 1 0 001 1h3v-5h4v5h3a1 1 0 001-1V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
+function IconoHorarios() { return <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="3" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M2 7h16" stroke="currentColor" strokeWidth="1.5"/><path d="M6 1v4M14 1v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="10" cy="13" r="2" fill="currentColor"/></svg>; }
+function IconoCursos() { return <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 3h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M8 7h4M8 10h6M8 13h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>; }
+function IconoDisponibilidad() { return <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.5"/><path d="M10 5v5l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
+function IconoHistorial() { return <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 3h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M7 7h6M7 10h6M7 13h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>; }
+function IconoConfiguracion() { return <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.5"/><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M3.64 3.64l1.41 1.41M14.95 14.95l1.41 1.41M3.64 16.36l1.41-1.41M14.95 5.05l1.41-1.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>; }
+function IconoAyuda() { return <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.5"/><path d="M8 8a2 2 0 114 0c0 1.5-2 2-2 3v1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="10" cy="15.5" r="0.5" fill="currentColor"/></svg>; }
+
 const NAVEGACION: ItemNav[] = [
-  { etiqueta: "Inicio", ruta: "/" },
-  { etiqueta: "Horarios", ruta: "/horarios" },
-  { etiqueta: "Cursos", ruta: "/cursos" },
-  { etiqueta: "Disponibilidad", ruta: "/disponibilidad" },
-  { etiqueta: "Historial", ruta: null },
+  { etiqueta: "Inicio", ruta: "/", icono: <IconoInicio /> },
+  { etiqueta: "Horarios", ruta: "/horarios", icono: <IconoHorarios /> },
+  { etiqueta: "Cursos", ruta: "/cursos", icono: <IconoCursos /> },
+  { etiqueta: "Disponibilidad", ruta: "/disponibilidad", icono: <IconoDisponibilidad /> },
+  { etiqueta: "Historial", ruta: null, icono: <IconoHistorial /> },
 ];
 
 const NAVEGACION_PIE: ItemNav[] = [
-  { etiqueta: "Configuración", ruta: null },
-  { etiqueta: "Ayuda", ruta: null },
+  { etiqueta: "Configuración", ruta: null, icono: <IconoConfiguracion /> },
+  { etiqueta: "Ayuda", ruta: null, icono: <IconoAyuda /> },
 ];
 
 const ITEM_BASE =
@@ -39,17 +48,21 @@ const ITEM_NO_DISPONIBLE = "text-on-surface-variant/50 cursor-not-allowed";
 interface ItemNavegacionProps {
   etiqueta: string;
   ruta: string | null;
+  icono: ReactNode;
   onNavegar?: () => void;
 }
 
 // NavLink resuelve el estado activo contra la URL y fija `aria-current="page"`
 // por su cuenta; solo alternamos las clases con su render prop `isActive`.
-function ItemNavegacion({ etiqueta, ruta, onNavegar }: ItemNavegacionProps) {
+function ItemNavegacion({ etiqueta, ruta, icono, onNavegar }: ItemNavegacionProps) {
   if (ruta === null) {
     return (
       <li>
         <button type="button" disabled className={`${ITEM_BASE} ${ITEM_NO_DISPONIBLE}`}>
-          {etiqueta}
+          <span className="flex items-center gap-2">
+            <span className="shrink-0 opacity-50">{icono}</span>
+            <span>{etiqueta}</span>
+          </span>
           <span className="sr-only"> (próximamente)</span>
         </button>
       </li>
@@ -64,7 +77,10 @@ function ItemNavegacion({ etiqueta, ruta, onNavegar }: ItemNavegacionProps) {
         onClick={onNavegar}
         className={({ isActive }) => `${ITEM_BASE} ${isActive ? ITEM_ACTIVO : ITEM_INACTIVO}`}
       >
-        {etiqueta}
+        <span className="flex items-center gap-2">
+          <span className="shrink-0">{icono}</span>
+          <span>{etiqueta}</span>
+        </span>
       </NavLink>
     </li>
   );
@@ -93,8 +109,8 @@ function ContenidoBarra({ onNavegar, onGenerarHorario, generando, puedeGenerar }
     <>
       <nav aria-label="Secciones">
         <ul className="flex flex-col gap-xs">
-          {NAVEGACION.map(({ etiqueta, ruta }) => (
-            <ItemNavegacion key={etiqueta} etiqueta={etiqueta} ruta={ruta} onNavegar={onNavegar} />
+          {NAVEGACION.map(({ etiqueta, ruta, icono }) => (
+            <ItemNavegacion key={etiqueta} etiqueta={etiqueta} ruta={ruta} icono={icono} onNavegar={onNavegar} />
           ))}
         </ul>
       </nav>
@@ -112,8 +128,8 @@ function ContenidoBarra({ onNavegar, onGenerarHorario, generando, puedeGenerar }
 
       <div className="border-t border-outline-variant pt-sm">
         <ul className="flex flex-col gap-xs">
-          {NAVEGACION_PIE.map(({ etiqueta, ruta }) => (
-            <ItemNavegacion key={etiqueta} etiqueta={etiqueta} ruta={ruta} onNavegar={onNavegar} />
+          {NAVEGACION_PIE.map(({ etiqueta, ruta, icono }) => (
+            <ItemNavegacion key={etiqueta} etiqueta={etiqueta} ruta={ruta} icono={icono} onNavegar={onNavegar} />
           ))}
         </ul>
       </div>
@@ -139,9 +155,15 @@ export function AppLayout({
   children,
 }: AppLayoutProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [oscuro, setOscuro] = useState(() => localStorage.getItem("tema") === "oscuro");
   const idCajon = useId();
   const botonMenuRef = useRef<HTMLButtonElement>(null);
   const cerrarCajonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", oscuro);
+    localStorage.setItem("tema", oscuro ? "oscuro" : "claro");
+  }, [oscuro]);
 
   // El cajón se monta y desmonta en vez de ocultarse por CSS: un elemento
   // trasladado fuera de pantalla sigue estando en el árbol de accesibilidad,
@@ -171,7 +193,9 @@ export function AppLayout({
   return (
     <div className="min-h-screen bg-background">
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-outline-variant bg-surface px-sm py-md md:flex">
-        <span className="mb-lg px-sm font-display text-headline-sm text-primary">StudyFlow</span>
+        <span className="mb-lg text-center font-display text-headline-lg text-primary">
+          <span className="text-[1.4em]">S</span>tudyFlow
+        </span>
         <ContenidoBarra onGenerarHorario={onGenerarHorario} generando={generando} puedeGenerar={puedeGenerar} />
       </aside>
 
@@ -192,7 +216,9 @@ export function AppLayout({
             className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-outline-variant bg-surface px-sm py-md"
           >
             <div className="mb-lg flex items-center justify-between px-sm">
-              <span className="font-display text-headline-sm text-primary">StudyFlow</span>
+              <span className="font-display text-headline-lg text-primary">
+                <span className="text-[1.4em]">S</span>tudyFlow
+              </span>
               <button
                 ref={cerrarCajonRef}
                 type="button"
@@ -230,10 +256,29 @@ export function AppLayout({
                 <span className="h-0.5 w-full rounded-full bg-current" />
               </span>
             </button>
-            <span className="font-display text-headline-sm text-primary">StudyFlow</span>
+            <span className="font-display text-headline-lg text-primary">
+              <span className="text-[1.4em]">S</span>tudyFlow
+            </span>
           </div>
           <div className="flex items-center gap-sm md:ml-auto">
             <span className="text-body-sm text-on-surface-variant">{nombreUsuario}</span>
+            <button
+              type="button"
+              onClick={() => setOscuro((prev) => !prev)}
+              className="rounded p-1.5 text-on-surface-variant hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              aria-label={oscuro ? "Activar modo claro" : "Activar modo oscuro"}
+            >
+              {oscuro ? (
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <circle cx="10" cy="10" r="4" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M17 10.74A8 8 0 019.26 3 6.5 6.5 0 1017 10.74z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </button>
             <button type="button" onClick={onCerrarSesion} className={BOTON_SECUNDARIO}>
               Cerrar sesión
             </button>
